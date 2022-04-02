@@ -6,7 +6,7 @@ function love.load()
 
 
 	
-	TileCollider = require("Libraries.tilecollider")
+	
 	Object = require("Classes.classic")
 	TileClass = require("Classes.Objects.tile")
 	BaseOBJ = require("Classes.Objects.baseobj")
