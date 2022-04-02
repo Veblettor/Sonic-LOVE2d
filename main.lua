@@ -75,9 +75,12 @@ function love.update(dt)
 	
 	
 	player:UpdateMovement(dt)
-	player:UpdateMotion(dt)
 	player:UpdateAnimations(dt)
 	player:UpdateJump(dt)
+	player:UpdateWallCollision(dt)
+	player:UpdateMotion(dt)
+	player:UpdateCollision(dt)
+	
 	player.TimeSinceLastFrame = player.TimeSinceLastFrame + dt
 	
 	if player.CurrentAnimation == "Walking" or player.CurrentAnimation == "Running" then
@@ -100,7 +103,7 @@ function love.update(dt)
 		
 	end
 	
-	player:UpdateCollision(dt)
+	
 	
 	cam:lookAt(player.XPos+love.graphics.getWidth()/4,player.YPos+player.HeightRadius+love.graphics.getHeight()/4,player.WidthRadius,player.HeightRadius)
 	--cam:lookAt(player.XPos,player.YPos,player.WidthRadius,player.HeightRadius)
@@ -141,7 +144,7 @@ function love.draw()
 	
 		if player.CollisionMode == "upright" then
 		love.graphics.points(player.XPos - player.WidthRadius, player.YPos + player.HeightRadius,player.XPos + player.WidthRadius, player.YPos + player.HeightRadius)
-		
+		love.graphics.points(player.XPos+player.XSpeed - 10, player.YPos,player.XPos+player.XSpeed + 10, player.YPos)
 		
 		elseif player.CollisionMode == "rightwall"  then
 		

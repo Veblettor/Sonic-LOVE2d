@@ -71,16 +71,14 @@ function Player:UpdateCollisionMode()
 	if sign(ang) == 1 or sign(ang) == 0 then
 			if ang < 46 then
 		
-		sensorE = {self.XPos - 10, self.YPos}
-		sensorF = {self.XPos + 10, self.YPos}
+		
 		
 		mode = "upright"
 		
 		elseif ang > 45 and ang < 134 then
 		
 	
-		sensorE = {self.XPos, self.YPos - 10}
-		sensorF = {self.XPos, self.YPos + 10}
+		
 		
 		mode = "rightwall"
 		
@@ -88,24 +86,20 @@ function Player:UpdateCollisionMode()
 		
 	
 		
-		sensorE = {self.XPos + 10, self.YPos}
-		sensorF = {self.XPos - 10, self.YPos}
+		
 		
 		mode = "ceiling"
 		
 		elseif ang > 225 and ang < 314 then
 		
 	
-		sensorE = {self.XPos, self.YPos + 10}
-		sensorF = {self.XPos, self.YPos - 10}
+		
 		
 		mode = "leftwall"
 		
 		elseif ang > 313 then
 		
 		
-		sensorE = {self.XPos - 10, self.YPos}
-		sensorF = {self.XPos + 10, self.YPos}
 		
 		mode = "upright"
 		
@@ -115,46 +109,26 @@ function Player:UpdateCollisionMode()
 
 		if ang > -46 then
 	
-		sensorE = {self.XPos - 10, self.YPos}
-		sensorF = {self.XPos + 10, self.YPos}
+		
 		
 		mode = "upright"
 		
 		elseif ang < -45 and ang > -134 then
 		
 		
-	
-		sensorE = {self.XPos, self.YPos + 10}
-		sensorF = {self.XPos, self.YPos - 10}
-		
-	
-		
 		mode = "leftwall"
 		
 		elseif ang < -133 and ang > -226 then
 		
-		
-		sensorE = {self.XPos - 10, self.YPos}
-		sensorF = {self.XPos + 10, self.YPos}
+	
 		
 		mode = "upright"
 		
 		elseif ang < -225 and ang > -314 then
 		
-		
-		sensorE = {self.XPos, self.YPos - 10}
-		sensorF = {self.XPos, self.YPos + 10}
-		
 		mode = "rightwall"
 		
 		elseif ang < -313 then
-		
-		
-		
-		
-		sensorE = {self.XPos + 10, self.YPos}
-		sensorF = {self.XPos - 10, self.YPos}
-		
 		
 		
 		mode = "ceiling"
@@ -456,8 +430,8 @@ function Player:RegressTile(sensor,mode,ogtile,ogheightindex)
 					local point
 					
 					if tiledata.Flipped then
-							print('tile is flipped!')
-							point = tile.YPos-16 + heightmap[ogheightindex] - (16-heightmap[ogheightindex])
+							
+							point = tile.YPos-18 + heightmap[ogheightindex] - (16-heightmap[ogheightindex])
 							else
 							point = tile.YPos - heightmap[ogheightindex]
 						end
@@ -512,7 +486,7 @@ local level = levels[GameMap.LevelIndex]
 						
 						local point
 						if tiledata.Flipped then
-							print('tile is flipped!')
+							
 							point = tile.YPos-18 + heightmap[indexused] - (16-heightmap[indexused])
 							else
 							point = tile.YPos - heightmap[indexused]
@@ -582,7 +556,9 @@ local foundtile
 local olddist = maxdist + 1
 local hmindex
 local hmheight
-	
+
+local level = levels[GameMap.LevelIndex]
+
 	if mode == "upright" then
 		
 		for i,tile in pairs(GameMap.Tiles) do
@@ -597,25 +573,28 @@ local hmheight
 				
 					local indexused = math.floor(tile.XPos - sensor[1] )
 					
-					--indexused = indexused +1
+					--indexused = indexused + 1
 					
+					--print(indexused)
 					
 					if  heightmap[indexused] and heightmap[indexused] ~= 0 then
 						
 					
 						
 						local point = tile.XPos - indexused
-						local ypoint = tile.YPos + heightmap[indexused]
+						local ypoint = tile.YPos - heightmap[indexused]
 						
 						local dist
 						
 						
-						dist =  point - sensor[1]
+						dist =  point - sensor[1] 
 						
 						
 						
 					
-						if  math.abs(dist) < olddist and math.floor(sensor[2]) == ypoint then
+						if  math.abs(dist) < olddist and sensor[2] >= ypoint and sensor[2] < tile.YPos  then
+							
+						
 							
 							
 							
@@ -633,9 +612,110 @@ local hmheight
 		end
 		
 	end
+	
+	
+	
+	return foundtile,olddist,hmindex,hmheight
 end
 
 
+function Player:UpdateWallCollision(dt)
+	local sensorE
+	local sensorF
+	
+	
+	
+	self:UpdateCollisionMode()
+	
+	local mode = self.CollisionMode
+	
+	if mode == "upright" then
+		sensorE = {self.XPos+self.XSpeed-10, self.YPos}
+		sensorF = {self.XPos+self.XSpeed+10, self.YPos}
+		
+		
+		
+	elseif mode == "rightwall" then
+		sensorE = {self.XPos, self.YPos - 10}
+		sensorF = {self.XPos, self.YPos + 10}
+		
+	elseif mode == "ceiling" then
+	
+	sensorE = {self.XPos + 10, self.YPos}
+	sensorF = {self.XPos - 10, self.YPos}
+	
+	elseif mode == "leftwall" then
+		
+		sensorE = {self.XPos, self.YPos + 10}
+		sensorF = {self.XPos, self.YPos - 10}
+		
+	end
+	
+	local sensor
+	
+	
+	if sign(self.GroundSpeed) == -1 then
+			sensor = sensorE
+		else	
+			sensor = sensorF
+	end
+	
+	local detectedtile,dist,hmindex,hmheight = self:GetNearestWall(sensor,32,mode)
+	
+	if mode == "upright" then
+	
+	if detectedtile then
+		
+		
+		if self.State == "Grounded" or self.State == "Rolling" then
+		
+				if dist > 0 then
+			
+			
+			
+			if sign(self.GroundSpeed) == -1 then
+				self.XSpeed = self.XSpeed - dist
+				self.GroundSpeed = 0
+				
+					
+				
+				
+				else
+				
+				
+					
+				
+				
+				self.XSpeed = self.XSpeed - dist
+				self.GroundSpeed = 0
+			end
+		
+		
+			
+		end
+		
+			elseif self.State == "InAir" then
+		
+			print("Wall Dist: "..dist)
+		
+			if dist > 0 then
+				self.XPos = self.XPos - dist
+				self.GroundSpeed = 0
+			end
+		
+			
+			
+		end
+	
+		
+		
+		self.DebugTile = detectedtile
+		
+	
+	end
+	
+	end
+end
 
 function Player:UpdateCollision(dt)
 	local sensorA
@@ -643,7 +723,7 @@ function Player:UpdateCollision(dt)
 	local sensorC
 	local sensorD
 	
-	self:UpdateCollisionMode()
+	
 	
 	local mode = self.CollisionMode
 	
@@ -655,8 +735,7 @@ function Player:UpdateCollision(dt)
 		sensorB = {self.XPos + self.WidthRadius, self.YPos + self.HeightRadius}
 		sensorC = {self.XPos - self.WidthRadius, self.YPos - self.HeightRadius}
 		sensorD = {self.XPos + self.WidthRadius, self.YPos - self.HeightRadius}
-		sensorE = {self.XPos - 10, self.YPos}
-		sensorF = {self.XPos + 10, self.YPos}
+		
 		
 		
 		
@@ -666,8 +745,6 @@ function Player:UpdateCollision(dt)
 		sensorB = {self.XPos + self.HeightRadius,self.YPos - self.WidthRadius}
 		sensorC = {self.XPos - self.HeightRadius, self.YPos + self.WidthRadius}
 		sensorD = {self.XPos - self.HeightRadius,self.YPos - self.WidthRadius}
-		sensorE = {self.XPos, self.YPos - 10}
-		sensorF = {self.XPos, self.YPos + 10}
 		
 		mode = "rightwall"
 		
@@ -679,8 +756,7 @@ function Player:UpdateCollision(dt)
 		sensorC = {self.XPos - self.WidthRadius, self.YPos + self.HeightRadius}
 		sensorD = {self.XPos + self.WidthRadius, self.YPos + self.HeightRadius}
 		
-		sensorE = {self.XPos + 10, self.YPos}
-		sensorF = {self.XPos - 10, self.YPos}
+		
 		
 		
 		
@@ -690,8 +766,7 @@ function Player:UpdateCollision(dt)
 		sensorB = {self.XPos - self.HeightRadius,self.YPos - self.WidthRadius}
 		sensorC = {self.XPos + self.HeightRadius, self.YPos + self.WidthRadius}
 		sensorD = {self.XPos + self.HeightRadius,self.YPos - self.WidthRadius}
-		sensorE = {self.XPos, self.YPos + 10}
-		sensorF = {self.XPos, self.YPos - 10}
+	
 	
 		
 		
@@ -777,7 +852,7 @@ function Player:UpdateCollision(dt)
 		
 	end
 	
-	self.DebugTile = winnertile
+	--self.DebugTile = winnertile
 	
 	if self.State == "InAir" then
 	

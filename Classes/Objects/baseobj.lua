@@ -42,9 +42,20 @@ function BaseOBJ:UpdateMotion(dt)
 		self.XSpeed = self.GroundSpeed * math.cos(math.rad(self.ActualAngle))
 		self.YSpeed = self.GroundSpeed * -math.sin(math.rad(self.ActualAngle))
 		
+	
+	
+	
+		self.XPos = self.XPos + self.XSpeed
+		self.YPos = self.YPos + self.YSpeed
+		
 		elseif self.State == "InAir" then
 		
-		self.GroundAngle = 0
+	
+	
+	
+	
+		self.XPos = self.XPos + self.XSpeed
+		self.YPos = self.YPos + self.YSpeed
 		
 		if self.YSpeed < 0 and self.YSpeed > -4 then
 			self.XSpeed = self.XSpeed - (self.XSpeed/0.125)/256
@@ -53,16 +64,13 @@ function BaseOBJ:UpdateMotion(dt)
 		self.YSpeed = self.YSpeed + self.Grv
 
 		if self.YSpeed > 16 then self.YSpeed = 16 end
+		
+		self.GroundAngle = 0
+		
 	end
 
 	
-	self.PrevXPos = self.XPos
-	self.PrevYPos = self.YPos
 	
-	
-	
-	self.XPos = self.XPos + self.XSpeed
-	self.YPos = self.YPos + self.YSpeed
 end
 
 return BaseOBJ
