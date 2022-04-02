@@ -513,7 +513,7 @@ local level = levels[GameMap.LevelIndex]
 						local point
 						if tiledata.Flipped then
 							print('tile is flipped!')
-							point = tile.YPos-16 + heightmap[indexused] - (16-heightmap[indexused])
+							point = tile.YPos-18 + heightmap[indexused] - (16-heightmap[indexused])
 							else
 							point = tile.YPos - heightmap[indexused]
 						end
