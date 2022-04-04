@@ -573,15 +573,11 @@ local level = levels[GameMap.LevelIndex]
 				
 					local indexused = math.floor(tile.XPos - sensor[1] )
 					
-					--indexused = indexused + 1
-					
-					--print(indexused)
-					
 					if  heightmap[indexused] and heightmap[indexused] ~= 0 then
 						
 					
 						
-						local point = tile.XPos - indexused
+						local point = tile.XPos + indexused
 						local ypoint = tile.YPos - heightmap[indexused]
 						
 						local dist
@@ -699,8 +695,22 @@ function Player:UpdateWallCollision(dt)
 			print("Wall Dist: "..dist)
 		
 			if dist > 0 then
-				self.XPos = self.XPos - dist
-				self.GroundSpeed = 0
+				if sign(self.GroundSpeed) == -1 then
+					self.XSpeed = self.XSpeed - dist/16
+					self.GroundSpeed = 0
+					
+						
+					
+					
+					else
+					
+					
+						
+					
+					
+					self.XSpeed = self.XSpeed - dist/16
+					self.GroundSpeed = 0
+				end
 			end
 		
 			
