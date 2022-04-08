@@ -9,6 +9,7 @@ function love.load()
 	
 	Object = require("Classes.classic")
 	TileClass = require("Classes.Objects.tile")
+	ChunkClass = require("Classes.Objects.chunk")
 	BaseOBJ = require("Classes.Objects.baseobj")
 	tick = require("Libraries.tick")
 	characterList = require("Registry.Characters")
@@ -19,9 +20,11 @@ function love.load()
 	
 	
 	
+
 	function LoadLevel(Level)
 		local 	map = 
 {
+	Chunks = {};
 	Tiles = {};
 	LevelIndex = 1;
 }
@@ -31,7 +34,44 @@ function love.load()
 			end
 		end
 	
-		for i = 1, #Level.Map do
+
+		for cri = 1, #Level.ChunkMap do -- chunk row index
+			chunkRow = Level.ChunkMap[cri]
+
+			for ci = 1, #chunkRow do -- chunk index
+				chunkId = chunkRow[ci]
+
+				if chunkId ~= 0 then
+					local FoundChunk = Level.ChunkSet[chunkId]
+					assert(FoundChunk, "ChunkId "..chunkId.." is not defined for map "..Level.Name.." Act "..Level.Act)
+
+					local newChunk = ChunkClass(256*(ci-1),256*cri,FoundChunk)
+					table.insert(map.Chunks,newChunk)
+
+					for rowindex = 1, #FoundChunk.Map do -- chunk
+						local Row = FoundChunk.Map[rowindex]
+
+						for tileIndex = 1, #Row do
+							tileId = Row[tileIndex]
+
+							if tileId ~= 0 then
+								FoundTile = FoundChunk.TileSet[tileId]
+
+								assert(FoundTile,"TileId "..tileId.." is not defined for chunk with id "..chunkId.." in map "..Level.Name.." Act "..Level.Act)
+
+								local newtile = TileClass( (256*(ci-1))+(16*tileIndex),(256*cri)+(16*rowindex),tileId,chunkId,FoundTile)
+								table.insert(map.Tiles,newtile)
+
+							end
+
+						end
+				end
+			end
+			end
+		end
+
+
+		--[[for i = 1, #Level.Map do
 			rows = Level.Map[i]
 			
 			for o = 1, #rows do
@@ -50,8 +90,10 @@ function love.load()
 			end
 			
 			
-		end
+		end--]]
 		
+
+
 		return map
 	end
 
@@ -77,7 +119,7 @@ function love.update(dt)
 	player:UpdateMovement(dt)
 	player:UpdateAnimations(dt)
 	player:UpdateJump(dt)
-	player:UpdateWallCollision(dt)
+	--player:UpdateWallCollision(dt)
 	player:UpdateMotion(dt)
 	player:UpdateCollision(dt)
 	
@@ -130,9 +172,9 @@ function love.draw()
 	
 	
 	local Image = SSheets[GameMap.LevelIndex]
-	for i,v in pairs(GameMap.Tiles) do
+	for i,v in pairs(GameMap.Chunks) do
 
-	love.graphics.draw(Image,v.Quad,v.XPos,v.YPos,0,1,1,16,16)
+	love.graphics.draw(Image,v.Quad,v.XPos,v.YPos,0,1,1,0,0)
 	
 	end
 	

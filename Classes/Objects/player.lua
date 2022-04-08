@@ -386,10 +386,10 @@ end
 function Player:SnapToNearest90Degrees()
 	
 	local ang = math.abs(self.GroundAngle)
-	if ang < 45 or ang >= 315 then
+	if ang < 46 or ang >= 315 then
 		self.GroundAngle = 0
 		
-		elseif ang >= 45 and ang < 135 then
+		elseif ang >= 46 and ang < 135 then
 		
 		self.GroundAngle = 90
 		
@@ -421,15 +421,15 @@ function Player:RegressTile(sensor,mode,ogtile,ogheightindex)
 				
 				local tileid = tile.TileId
 				
-				local tiledata = level.TileSet[tileid]
+				--local tiledata = level.TileSet[tileid]
 				
-				local heightmap = tiledata[1]
+				local heightmap = tile.HeightMap
 				
 				if heightmap[ogheightindex] ~= 0 then
 					
 					local point
 					
-					if tiledata.Flipped then
+					if tile.Flags.Flipped then
 							
 							point = tile.YPos-18 + heightmap[ogheightindex] - (16-heightmap[ogheightindex])
 							else
@@ -471,11 +471,11 @@ local level = levels[GameMap.LevelIndex]
 		
 				if tile.CanCollide then
 					
-					local tileid = tile.TileId
+					--local tileid = tile.TileId
 				
-					local tiledata = level.TileSet[tileid]
+					--local tiledata = level.TileSet[tileid]
 				
-					local heightmap = tiledata[1]
+					local heightmap = tile.HeightMap
 				
 					local indexused = math.floor(tile.XPos - sensor[1] )
 					
@@ -485,7 +485,7 @@ local level = levels[GameMap.LevelIndex]
 					if  heightmap[indexused] and heightmap[indexused] ~= 0 then
 						
 						local point
-						if tiledata.Flipped then
+						if tile.Flags.Flipped then
 							
 							point = tile.YPos-18 + heightmap[indexused] - (16-heightmap[indexused])
 							else
@@ -567,9 +567,9 @@ local level = levels[GameMap.LevelIndex]
 			
 			local tileid = tile.TileId
 				
-					local tiledata = level.TileSet[tileid]
+					--local tiledata = level.TileSet[tileid]
 				
-					local heightmap = tiledata[1]
+					local heightmap = tile.HeightMap
 				
 					local indexused = math.floor(tile.XPos - sensor[1] )
 					

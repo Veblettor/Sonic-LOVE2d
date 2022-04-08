@@ -5,12 +5,10 @@ Characters =
 	
 		Name = "Sonic";
 	
-		--Acceleration = 0.046875;
-		Acceleration = 0.1;
+		Acceleration = 0.046875;
 		Deceleration = 0.5;
 		Friction = 0.046875;
-		--TopSpeed = 6;
-		TopSpeed = 12;
+		TopSpeed = 6;
 	
 		SlopeWalkFactor = 0.125;
 		SlopeRollUp = 0.078125;
