@@ -2,9 +2,9 @@ local levels = require("Registry.Levels")
 Player = BaseOBJ:extend()
 
 
-function Player:new(Width,Height,CharacterProperties)
+function Player:new(X,Y,CharacterProperties)
 
-	Player.super.new(self,Width,Height)
+	Player.super.new(self,CharacterProperties.Scale.BaseWidth,CharacterProperties.Scale.BaseHeight)
 	
 	self.State = "InAir"
 	self.Facing = "Right"
@@ -15,7 +15,9 @@ function Player:new(Width,Height,CharacterProperties)
 	self.CollisionMode = "upright"
 	self.HoldingJump = false
 	
-	
+	self.XPos = X
+	self.YPos = Y
+
 	self.Acc = CharacterProperties.Acceleration
 	self.Dec = CharacterProperties.Deceleration
 	self.Frc = CharacterProperties.Friction
@@ -31,7 +33,10 @@ function Player:new(Width,Height,CharacterProperties)
 	self.Grv = CharacterProperties.Gravity
 	self.Animations = CharacterProperties.Animations
 	
-	
+	self.BaseWidth = CharacterProperties.Scale.BaseWidth
+	self.BaseHeight = CharacterProperties.Scale.BaseHeight
+	self.RollWidth = CharacterProperties.Scale.RollWidth
+	self.RollHeight = CharacterProperties.Scale.RollHeight
 	
 	
 	for i,v in pairs(self.Animations) do
@@ -144,7 +149,13 @@ end
 function Player:UpdateAnimations(dt)
 	if self.GroundAngle == 360 then self.GroundAngle = 0 end
 
-	
+	if self.CurrentAnimation == "Rolling" then
+		self.WidthRadius = self.RollWidth
+		self.HeightRadius = self.RollHeight
+	else
+		self.WidthRadius = self.BaseWidth
+		self.HeightRadius = self.BaseHeight
+	end
 
 	if self.State == "Grounded" then
 	
@@ -214,6 +225,8 @@ function Player:UpdateMovement(dt)
 
 	if self.State == "Grounded" then
 		
+		
+
 		self.GroundSpeed = self.GroundSpeed - self.Slp*math.sin(self.GroundAngle)
 	
 		if love.keyboard.isDown("a") then
@@ -286,12 +299,19 @@ function Player:UpdateMovement(dt)
 			
 			if (self.XSpeed > -self.Top) then
 			
-			self.XSpeed = self.XSpeed - self.Acc
-			
+			self.XSpeed = self.XSpeed - self.Air
+			self.GroundSpeed = self.GroundSpeed - self.Air
+
+			if self.GroundSpeed <= -self.Top then
+				self.GroundSpeed = -self.Top
+			end
+
 			if self.XSpeed <= -self.Top then
 				self.XSpeed = -self.Top
 			end
 			
+
+
 		end
 	
 	
@@ -301,8 +321,13 @@ function Player:UpdateMovement(dt)
 			
 			if (self.GroundSpeed < self.Top) then
 			
-			self.XSpeed = self.XSpeed + self.Acc
-			
+			self.XSpeed = self.XSpeed + self.Air
+			self.GroundSpeed = self.GroundSpeed + self.Air
+
+			if self.GroundSpeed >= self.Top then
+				self.GroundSpeed = self.Top
+			end
+
 			if self.XSpeed >= self.Top then
 				self.XSpeed = self.Top
 			end
@@ -315,7 +340,7 @@ function Player:UpdateMovement(dt)
 	
 	
 	elseif self.State == "Rolling" then
-	
+		
 	
 	if sign(self.GroundSpeed) == sign(self.GroundAngle) then
 		self.GroundSpeed = self.GroundSpeed - self.Slprollup*math.sin(self.GroundAngle)

@@ -19,6 +19,14 @@ Characters =
 		JumpPower = 6.5;
 		Gravity = 0.21875;
 	
+		Scale = 
+		{
+			BaseWidth = 9;
+			BaseHeight = 19;
+			RollWidth = 7;
+			RollHeight = 14;
+		};
+
 		Animations = 
 		{
 		
