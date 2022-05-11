@@ -302,15 +302,13 @@ function Player:UpdateMovement(dt)
 			self.XSpeed = self.XSpeed - self.Air
 			self.GroundSpeed = self.GroundSpeed - self.Air
 
-			if self.GroundSpeed <= -self.Top then
-				self.GroundSpeed = -self.Top
-			end
+		
 
 			if self.XSpeed <= -self.Top then
 				self.XSpeed = -self.Top
 			end
 			
-
+			self.GroundSpeed = self.XSpeed
 
 		end
 	
@@ -322,7 +320,7 @@ function Player:UpdateMovement(dt)
 			if (self.GroundSpeed < self.Top) then
 			
 			self.XSpeed = self.XSpeed + self.Air
-			self.GroundSpeed = self.GroundSpeed + self.Air
+			
 
 			if self.GroundSpeed >= self.Top then
 				self.GroundSpeed = self.Top
@@ -332,6 +330,8 @@ function Player:UpdateMovement(dt)
 				self.XSpeed = self.Top
 			end
 			
+			self.GroundSpeed = self.XSpeed
+
 			end
 
 		
