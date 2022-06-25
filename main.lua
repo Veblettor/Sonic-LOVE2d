@@ -122,7 +122,10 @@ function love.update(dt)
 	player:UpdateJump(dt)
 	player:UpdateMotion(dt)
 	player:UpdateCollision(dt)
-	
+	if player.State == "InAir" then
+		player:UpdateCeilingCollision(dt)
+	end
+
 	player.TimeSinceLastFrame = player.TimeSinceLastFrame + dt
 	
 	if player.CurrentAnimation == "Walking" or player.CurrentAnimation == "Running" then

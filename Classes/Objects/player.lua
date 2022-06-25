@@ -486,6 +486,9 @@ function Player:RegressTile(sensor,mode,ogtile,ogheightindex)
 	return ftile,rdist
 end
 
+
+
+
 function Player:GetNearestFloor(sensor,maxdist,mode)
 local foundtile
 local olddist = maxdist + 1
@@ -583,6 +586,103 @@ local level = levels[GameMap.LevelIndex]
 	if not foundtile then return nil,nil,nil,nil end
 	if foundtile then return foundtile,olddist,hmindex,hmheight end
 end
+
+
+function Player:GetNearestCeiling(sensor,maxdist,mode)
+	local foundtile
+	local olddist = maxdist + 1
+	
+	local hmindex
+	local hmheight
+	
+	
+	
+	local level = levels[GameMap.LevelIndex]
+	
+		if mode == "upright" then	
+				
+				
+				for i,tile in pairs(GameMap.Tiles) do
+			
+					if tile.CanCollide then
+						
+						--local tileid = tile.TileId
+					
+						--local tiledata = level.TileSet[tileid]
+					
+						local heightmap = tile.HeightMap
+					
+						local indexused = math.floor(tile.XPos - sensor[1] )
+						
+						--indexused = indexused +1
+						
+						
+						if  heightmap[indexused] and heightmap[indexused] ~= 0 then
+							
+							local point
+						
+								
+							--point = tile.YPos-18 + heightmap[indexused] - (16-heightmap[indexused])
+							point = tile.YPos-18 + heightmap[indexused] 
+							
+							
+							local dist
+							
+							
+							dist =  point - sensor[2]
+							
+							
+							
+						
+							if  math.abs(dist) < olddist then
+								
+								
+								
+								olddist = dist
+								foundtile = tile
+								hmindex = indexused
+								hmheight = heightmap[indexused]
+							end
+						end
+						
+					end
+				
+				end
+				
+				
+	
+				
+				
+			
+		
+			elseif mode == "rightwall" then
+			
+			
+				
+			
+			elseif mode == "ceiling" then
+			
+			
+			
+			
+			
+			elseif mode == "leftwall" then
+			
+			
+				
+				
+			
+			end
+			
+	
+			
+		
+		
+		
+		if not foundtile then return nil,nil,nil,nil end
+		if foundtile then return foundtile,olddist,hmindex,hmheight end
+	end
+
 
 function Player:GetNearestWall(sensor,maxdist,mode)
 local foundtile
@@ -757,6 +857,113 @@ function Player:UpdateWallCollision(dt)
 	end
 	
 	end
+end
+
+function Player:UpdateCeilingCollision(dt)
+	local sensorC
+	local sensorD
+	
+	local mode = self.CollisionMode
+	local ang = self.GroundAngle
+
+
+	if mode == "upright" then
+		sensorC = {self.XPos - self.WidthRadius, self.YPos - self.HeightRadius}
+		sensorD = {self.XPos + self.WidthRadius, self.YPos - self.HeightRadius}
+		
+		
+		
+		
+		elseif mode == "rightwall" then
+		
+		
+		sensorC = {self.XPos - self.HeightRadius, self.YPos + self.WidthRadius}
+		sensorD = {self.XPos - self.HeightRadius,self.YPos - self.WidthRadius}
+		
+		mode = "rightwall"
+		
+		elseif mode == "ceiling" then
+		
+	
+		
+		sensorC = {self.XPos - self.WidthRadius, self.YPos + self.HeightRadius}
+		sensorD = {self.XPos + self.WidthRadius, self.YPos + self.HeightRadius}
+		
+		
+		
+		
+		
+		elseif 	mode == "leftwall" then
+		
+	
+		sensorC = {self.XPos + self.HeightRadius, self.YPos + self.WidthRadius}
+		sensorD = {self.XPos + self.HeightRadius,self.YPos - self.WidthRadius}
+	
+	
+	end
+		
+	local ceiltile1,ceildist1,hmindex1,hmheight1,totaldist1 = self:GetNearestCeiling(sensorC,32,mode)
+	local ceiltile2,ceildist2,hmindex2,hmheight2,totaldist2 = self:GetNearestCeiling(sensorD,32,mode)
+
+	local winnertile,winnerdist,winnersensor,winnerh
+	
+	if ceiltile1 == nil and ceiltile2 then
+		winnertile = ceiltile2
+		winnerdist = ceildist2
+		winnersensor = sensorB
+		winnerh = hmheight2
+		elseif ceiltile2 == nil and ceiltile1 then
+		winnertile = ceiltile1
+		winnerdist = ceildist1
+		winnersensor = sensorA
+		winnerh = hmheight1
+		elseif ceiltile2 == nil and ceiltile1 == nil then
+		
+		
+		winnersensor = nil
+		winnertile = nil
+		winnerdist = nil
+		elseif ceiltile1 and ceiltile2 and ceildist1 > ceildist2 then
+		winnertile = ceiltile2
+		winnerdist = ceildist2
+		winnersensor = sensorB
+		winnerh = hmheight2
+		elseif ceiltile1 and ceiltile2 and ceildist2 > ceildist1 then
+		winnertile = ceiltile1
+		winnerdist = ceildist1
+		winnersensor = sensorA
+		winnerh = hmheight1
+		elseif ceiltile1 and ceiltile2 and ceildist1 == ceildist2 then
+		
+		if self.Facing == "Left" then
+			winnertile = ceiltile1
+		winnerdist = ceildist1
+		winnersensor = sensorA
+		winnerh = hmheight2
+			
+			else
+			
+			winnertile = ceiltile2
+		winnerdist = ceildist2
+		winnersensor = sensorB
+		winnerh = hmheight2
+		end
+		
+		
+	end
+	
+		local threshold = (self.YSpeed-48)
+		
+		
+		
+			
+				
+				
+				
+				if winnerdist and winnerdist >= threshold and math.floor(winnerdist) < -4 then
+				self.YPos = self.YPos - winnerdist
+				end
+
 end
 
 function Player:UpdateCollision(dt)
