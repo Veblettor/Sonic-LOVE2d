@@ -190,7 +190,7 @@ function love.draw()
 		if player.CollisionMode == "upright" then
 		love.graphics.points(player.XPos - player.WidthRadius, player.YPos + player.HeightRadius,player.XPos + player.WidthRadius, player.YPos + player.HeightRadius)
 		love.graphics.points(player.XPos+player.XSpeed - 10, player.YPos,player.XPos+player.XSpeed + 10, player.YPos)
-		
+		love.graphics.points(player.XPos - player.WidthRadius, player.YPos - player.HeightRadius,player.XPos + player.WidthRadius, player.YPos - player.HeightRadius)
 		elseif player.CollisionMode == "rightwall"  then
 		
 		love.graphics.points(player.XPos + player.HeightRadius, player.YPos + player.WidthRadius,player.XPos + player.HeightRadius, player.YPos - player.WidthRadius)

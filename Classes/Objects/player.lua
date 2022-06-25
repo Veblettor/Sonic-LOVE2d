@@ -181,9 +181,11 @@ end
 
 function Player:UpdateJump(dt)
 
+local canJump = self:CheckCanJump()
 
 
-if love.keyboard.isDown("space") then
+
+if love.keyboard.isDown("space") and canJump then
 	
 			if not self.HoldingJump and (self.State == "Grounded" or self.State == "Rolling")  then
 			
@@ -623,7 +625,7 @@ function Player:GetNearestCeiling(sensor,maxdist,mode)
 						
 								
 							--point = tile.YPos-18 + heightmap[indexused] - (16-heightmap[indexused])
-							point = tile.YPos-18 + heightmap[indexused] 
+							point = tile.YPos-16 + heightmap[indexused] 
 							
 							
 							local dist
@@ -634,7 +636,7 @@ function Player:GetNearestCeiling(sensor,maxdist,mode)
 							
 							
 						
-							if  math.abs(dist) < olddist then
+							if  math.abs(dist) < olddist and point < self.YPos then
 								
 								
 								
@@ -761,8 +763,8 @@ function Player:UpdateWallCollision(dt)
 	if mode == "upright" then
 		
 
-		sensorE = {self.XPos+(self.XSpeed)-10, self.YPos}
-		sensorF = {self.XPos+(self.XSpeed)+10, self.YPos}
+		sensorE = {self.XPos+(self.XSpeed)-10, self.YPos-5}
+		sensorF = {self.XPos+(self.XSpeed)+10, self.YPos-5}
 		
 		
 		
@@ -828,7 +830,7 @@ function Player:UpdateWallCollision(dt)
 		
 			elseif self.State == "InAir" then
 		
-			print("Wall Dist: "..dist)
+			--print("Wall Dist: "..dist)
 		
 			if dist > 0 then
 				if sign(self.GroundSpeed) == -1 then
@@ -856,6 +858,106 @@ function Player:UpdateWallCollision(dt)
 	
 	end
 	
+	end
+end
+
+function Player:CheckCanJump(dt)
+	local sensorC
+	local sensorD
+	
+	local mode = self.CollisionMode
+	local ang = self.GroundAngle
+
+
+	if mode == "upright" then
+		sensorC = {self.XPos - self.WidthRadius, self.YPos - self.HeightRadius}
+		sensorD = {self.XPos + self.WidthRadius, self.YPos - self.HeightRadius}
+		
+		
+		
+		
+		elseif mode == "rightwall" then
+		
+		
+		sensorC = {self.XPos - self.HeightRadius, self.YPos + self.WidthRadius}
+		sensorD = {self.XPos - self.HeightRadius,self.YPos - self.WidthRadius}
+		
+		mode = "rightwall"
+		
+		elseif mode == "ceiling" then
+		
+	
+		
+		sensorC = {self.XPos - self.WidthRadius, self.YPos + self.HeightRadius}
+		sensorD = {self.XPos + self.WidthRadius, self.YPos + self.HeightRadius}
+		
+		
+		
+		
+		
+		elseif 	mode == "leftwall" then
+		
+	
+		sensorC = {self.XPos + self.HeightRadius, self.YPos + self.WidthRadius}
+		sensorD = {self.XPos + self.HeightRadius,self.YPos - self.WidthRadius}
+	
+	
+	end
+
+	local ceiltile1,ceildist1,hmindex1,hmheight1,totaldist1 = self:GetNearestCeiling(sensorC,25,mode)
+	local ceiltile2,ceildist2,hmindex2,hmheight2,totaldist2 = self:GetNearestCeiling(sensorD,25,mode)
+
+	local winnertile,winnerdist,winnersensor,winnerh
+	
+	if ceiltile1 == nil and ceiltile2 then
+		winnertile = ceiltile2
+		winnerdist = ceildist2
+		winnersensor = sensorB
+		winnerh = hmheight2
+		elseif ceiltile2 == nil and ceiltile1 then
+		winnertile = ceiltile1
+		winnerdist = ceildist1
+		winnersensor = sensorA
+		winnerh = hmheight1
+		elseif ceiltile2 == nil and ceiltile1 == nil then
+		
+		
+		winnersensor = nil
+		winnertile = nil
+		winnerdist = nil
+		elseif ceiltile1 and ceiltile2 and ceildist1 > ceildist2 then
+		winnertile = ceiltile2
+		winnerdist = ceildist2
+		winnersensor = sensorB
+		winnerh = hmheight2
+		elseif ceiltile1 and ceiltile2 and ceildist2 > ceildist1 then
+		winnertile = ceiltile1
+		winnerdist = ceildist1
+		winnersensor = sensorA
+		winnerh = hmheight1
+		elseif ceiltile1 and ceiltile2 and ceildist1 == ceildist2 then
+		
+		if self.Facing == "Left" then
+			winnertile = ceiltile1
+		winnerdist = ceildist1
+		winnersensor = sensorA
+		winnerh = hmheight2
+			
+			else
+			
+			winnertile = ceiltile2
+		winnerdist = ceildist2
+		winnersensor = sensorB
+		winnerh = hmheight2
+		end
+		
+		
+	end
+
+	if winnerdist then
+		return false
+	else
+		return true
 	end
 end
 
@@ -952,16 +1054,20 @@ function Player:UpdateCeilingCollision(dt)
 		
 	end
 	
-		local threshold = (self.YSpeed-48)
+		local threshold = -(self.YSpeed+48)
 		
 		
 		
 			
 				
+				if winnerdist then
+					print(winnerdist)
+				end
 				
+				if winnerdist and winnerdist > -4 then
 				
-				if winnerdist and winnerdist >= threshold and math.floor(winnerdist) < -4 then
 				self.YPos = self.YPos - winnerdist
+				self.YSpeed = 0
 				end
 
 end
