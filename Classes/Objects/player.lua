@@ -222,6 +222,14 @@ end
 function Player:UpdateMovement(dt)
 
 
+	if love.keyboard.isDown("f") then
+
+		if self.Facing == "Right" then
+			self.GroundSpeed = 12
+		else
+			self.GroundSpeed = -12
+		end
+	end
 
 	if self.State == "Grounded" then
 		
@@ -588,7 +596,7 @@ local level = levels[GameMap.LevelIndex]
 		
 		for i,tile in pairs(GameMap.Tiles) do
 		
-		if tile.CanCollide then
+		if tile.CanCollide and not tile.IgnoreWall then
 			
 			local tileid = tile.TileId
 				
@@ -608,7 +616,7 @@ local level = levels[GameMap.LevelIndex]
 						local dist
 						
 						
-						dist =  point - sensor[1] 
+						dist =  tile.XPos+9 - sensor[1] 
 						
 						
 						
@@ -651,8 +659,10 @@ function Player:UpdateWallCollision(dt)
 	local mode = self.CollisionMode
 	
 	if mode == "upright" then
-		sensorE = {self.XPos+self.XSpeed-10, self.YPos}
-		sensorF = {self.XPos+self.XSpeed+10, self.YPos}
+		
+
+		sensorE = {self.XPos+(self.XSpeed)-10, self.YPos}
+		sensorF = {self.XPos+(self.XSpeed)+10, self.YPos}
 		
 		
 		
@@ -681,7 +691,7 @@ function Player:UpdateWallCollision(dt)
 			sensor = sensorF
 	end
 	
-	local detectedtile,dist,hmindex,hmheight = self:GetNearestWall(sensor,32,mode)
+	local detectedtile,dist,hmindex,hmheight = self:GetNearestWall(sensor,64,mode)
 	
 	if mode == "upright" then
 	
@@ -695,9 +705,9 @@ function Player:UpdateWallCollision(dt)
 			
 			
 			if sign(self.GroundSpeed) == -1 then
-				self.XSpeed = self.XSpeed - dist
-				self.GroundSpeed = 0
 				
+				self.GroundSpeed = 0
+				self.XSpeed = 0
 					
 				
 				
@@ -707,8 +717,9 @@ function Player:UpdateWallCollision(dt)
 					
 				
 				
-				self.XSpeed = self.XSpeed - dist
+				
 				self.GroundSpeed = 0
+				self.XSpeed = 0
 			end
 		
 		
@@ -721,20 +732,16 @@ function Player:UpdateWallCollision(dt)
 		
 			if dist > 0 then
 				if sign(self.GroundSpeed) == -1 then
-					self.XSpeed = self.XSpeed - dist/16
+					self.XSpeed = 0
 					self.GroundSpeed = 0
 					
 						
 					
 					
 					else
-					
-					
-						
-					
-					
-					self.XSpeed = self.XSpeed - dist/16
+					self.XSpeed = 0
 					self.GroundSpeed = 0
+					
 				end
 			end
 		

@@ -8,8 +8,8 @@ function love.load()
 	
 	
 	Object = require("Classes.classic")
-	TileClass = require("Classes.Objects.tile")
-	ChunkClass = require("Classes.Objects.chunk")
+	TileClass = require("Classes.Terrain.tile")
+	ChunkClass = require("Classes.Terrain.chunk")
 	BaseOBJ = require("Classes.Objects.baseobj")
 	tick = require("Libraries.tick")
 	characterList = require("Registry.Characters")
@@ -118,8 +118,8 @@ function love.update(dt)
 	
 	player:UpdateMovement(dt)
 	player:UpdateAnimations(dt)
+	player:UpdateWallCollision(dt)
 	player:UpdateJump(dt)
-	--player:UpdateWallCollision(dt)
 	player:UpdateMotion(dt)
 	player:UpdateCollision(dt)
 	
