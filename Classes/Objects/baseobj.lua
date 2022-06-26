@@ -1,10 +1,10 @@
-local levels = require("Registry.Levels")
+
 
 BaseOBJ = Object:extend()
 
 
 function BaseOBJ:new(Width,Height)
-	local level = levels[GameMap.LevelIndex]
+	
 
 
 	self.PrevXPos = 0
@@ -19,7 +19,7 @@ function BaseOBJ:new(Width,Height)
 	self.WidthRadius = Width
 	self.HeightRadius = Height
 	
-	--self.Collider = TileCollider.new(self.XPos-self.WidthRadius/2,self.YPos+self.HeightRadius/2,self.WidthRadius*2,self.HeightRadius*2, level.Map, level.TileSet)
+	
 	
 	self.Grv = 0.21875
 	self.State = "Grounded"

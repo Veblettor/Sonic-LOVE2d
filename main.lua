@@ -5,21 +5,22 @@ function love.load()
 	
 
 
-	
-	
+	love.window.setMode(1200,800)
+	Stages = require("Registry.Stages")
 	Object = require("Classes.classic")
 	TileClass = require("Classes.Terrain.tile")
 	ChunkClass = require("Classes.Terrain.chunk")
 	BaseOBJ = require("Classes.Objects.baseobj")
 	tick = require("Libraries.tick")
 	characterList = require("Registry.Characters")
-	SSheets = require("Registry.SpriteSheets")
-	Levels = require("Registry.Levels")
+	--SSheets = require("Registry.SpriteSheets")
+	
 	playerClass = require("Classes.Objects.player")
 	Camera = require("Libraries.Camera")
+	Misc = require("Libraries.misc")
 	Paused = false
 	
-	
+
 
 	function LoadLevel(Level)
 		local 	map = 
@@ -28,15 +29,15 @@ function love.load()
 	Tiles = {};
 	LevelIndex = 1;
 }
-		for i,v in pairs(Levels) do
+		for i,v in pairs(Stages) do
 			if v.Name == Level.Name and v.Act == Level.Act then
 				map.LevelIndex = i
 			end
 		end
 	
-
-		for cri = 1, #Level.ChunkMap do -- chunk row index
-			chunkRow = Level.ChunkMap[cri]
+		local ChunkMap = Level.GetChunkLayout()
+		for cri = 1, #ChunkMap do -- chunk row index
+			chunkRow = ChunkMap[cri]
 
 			for ci = 1, #chunkRow do -- chunk index
 				chunkId = chunkRow[ci]
@@ -45,7 +46,7 @@ function love.load()
 					local FoundChunk = Level.ChunkSet[chunkId]
 					assert(FoundChunk, "ChunkId "..chunkId.." is not defined for map "..Level.Name.." Act "..Level.Act)
 
-					local newChunk = ChunkClass(256*(ci-1),256*cri,FoundChunk)
+					local newChunk = ChunkClass(Level.ChunkSize*(ci-1),Level.ChunkSize*cri,FoundChunk)
 					table.insert(map.Chunks,newChunk)
 
 					for rowindex = 1, #FoundChunk.Map do -- chunk
@@ -59,7 +60,7 @@ function love.load()
 
 								assert(FoundTile,"TileId "..tileId.." is not defined for chunk with id "..chunkId.." in map "..Level.Name.." Act "..Level.Act)
 
-								local newtile = TileClass( (256*(ci-1))+(16*tileIndex),(256*cri)+(16*rowindex),tileId,chunkId,FoundTile)
+								local newtile = TileClass( (Level.ChunkSize*(ci-1))+(16*tileIndex),(Level.ChunkSize*cri)+(16*rowindex),tileId,chunkId,FoundTile)
 								table.insert(map.Tiles,newtile)
 
 							end
@@ -97,7 +98,7 @@ function love.load()
 		return map
 	end
 
-	GameMap = LoadLevel(Levels[1])
+	GameMap = LoadLevel(Stages[1])
 	
 	cam = Camera()
 	
@@ -106,8 +107,8 @@ function love.load()
 	
 	player = playerClass(9,20, characterList[1])
 	
-	player.XPos = 3215
-	player.YPos = 941
+	player.XPos = 128
+	player.YPos = 128
 end
 
 function love.keypressed(key,scancode,isrepeat)
@@ -182,7 +183,7 @@ function love.draw()
 	
 	
 	
-	local Image = SSheets[GameMap.LevelIndex]
+	local Image = Stages[GameMap.LevelIndex].SpriteSheet
 	for i,v in pairs(GameMap.Chunks) do
 
 	love.graphics.draw(Image,v.Quad,v.XPos,v.YPos,0,1,1,0,0)

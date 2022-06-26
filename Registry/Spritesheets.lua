@@ -1,7 +1,7 @@
 
 SpriteSheets = 
 {
-	love.graphics.newImage("Assets/Sprites/Levels/testchunks.png");
+	love.graphics.newImage("Assets/Sprites/Stages/testchunks.png");
 }
 
 

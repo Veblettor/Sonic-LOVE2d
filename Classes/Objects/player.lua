@@ -1,4 +1,4 @@
-local levels = require("Registry.Levels")
+
 Player = BaseOBJ:extend()
 
 
@@ -465,7 +465,7 @@ end
 
 function Player:RegressTile(sensor,mode,ogtile,ogheightindex)
 	
-	local level = levels[GameMap.LevelIndex]
+	
 	
 	local ftile
 	local rdist
@@ -544,7 +544,7 @@ local hmheight
 
 
 
-local level = levels[GameMap.LevelIndex]
+
 
 	if mode == "upright" then	
 			
@@ -563,7 +563,7 @@ local level = levels[GameMap.LevelIndex]
 						
 						if tile.Flags.Flipped then
 							
-							point = tile.YPos-18 + heightmap[indexused] - (16-heightmap[indexused])
+							point = tile.YPos- (12+heightmap[indexused])
 							else
 							point = tile.YPos - heightmap[indexused]
 						end
@@ -594,18 +594,24 @@ local level = levels[GameMap.LevelIndex]
 		elseif mode == "rightwall" then
 		
 		for i,tile in pairs(GameMap.Tiles) do
-			local heightmap = tile.HeightMap
+			local heightmap 
+			if tile.HorizontalMap then
+				heightmap = tile.HorizontalMap
+			else
+				heightmap = tile.HeightMap
+			end
+			
 
 			local indexused = math.floor(tile.YPos - sensor[2])
 
 			if heightmap[indexused] and heightmap[indexused] ~= 0 then
 				
-				if tile.Flags.Flipped then
+			--[[	if tile.Flags.Flipped then
 					point = tile.XPos-18 + heightmap[indexused] - (16-heightmap[indexused])
 				else
 					point = tile.XPos - heightmap[indexused]
-				end
-
+				end--]]
+				point = tile.XPos - heightmap[indexused]
 				local dist = point - sensor[1]
 
 				if math.abs(dist) < olddist then
@@ -651,7 +657,7 @@ function Player:GetNearestCeiling(sensor,maxdist,mode)
 	
 	
 	
-	local level = levels[GameMap.LevelIndex]
+
 	
 		if mode == "upright" then	
 				
@@ -660,9 +666,7 @@ function Player:GetNearestCeiling(sensor,maxdist,mode)
 			
 					if not tile.Flags.IgnoreCeiling then
 						
-						--local tileid = tile.TileId
-					
-						--local tiledata = level.TileSet[tileid]
+
 					
 						local heightmap = tile.HeightMap
 					
@@ -683,7 +687,9 @@ function Player:GetNearestCeiling(sensor,maxdist,mode)
 								point = tile.YPos
 							else
 								--point = tile.YPos-16 + heightmap[indexused] - (16-heightmap[indexused])
-								point = tile.YPos - (16-heightmap[indexused])
+								--point = tile.YPos - (16+heightmap[indexused])
+								--point = tile.YPos+16 - (16+heightmap[indexused])
+								point = tile.YPos - (heightmap[indexused]+4)
 								--point = tile.YPos - 14 + (16-heightmap[indexused])
 								
 							end
@@ -754,7 +760,7 @@ local olddist = maxdist + 1
 local hmindex
 local hmheight
 
-local level = levels[GameMap.LevelIndex]
+
 
 	if mode == "upright" then
 		
@@ -763,10 +769,11 @@ local level = levels[GameMap.LevelIndex]
 		if not tile.Flags.IgnoreWall then
 			
 		
+			local heightmap = tile.HeightMap
+
 				
-				
-				
-					local heightmap = tile.HeightMap
+
+					
 				
 					local indexused = math.floor(tile.XPos - sensor[1] )
 					
@@ -820,21 +827,27 @@ local level = levels[GameMap.LevelIndex]
 						
 						
 						
-							local heightmap = tile.HeightMap
+							local heightmap
 						
-							local indexused = math.floor(tile.YPos - sensor[2] )
+							if tile.HorizontalMap then
+								heightmap = tile.HorizontalMap
+							else
+								heightmap = tile.HeightMap
+							end
+
+							local indexused = math.floor( sensor[2] - tile.YPos)
 							
 							if  heightmap[indexused] and heightmap[indexused] ~= 0 then
 								
 							
 								
-								local point = tile.YPos + indexused
+								local point = tile.YPos - indexused
 								local ypoint
 		
 								if tile.Flags.Flipped then
-									ypoint = tile.XPos - 16 + heightmap[indexused]
+									ypoint = tile.XPos + 16 - heightmap[indexused]
 								else
-									ypoint = tile.XPos - heightmap[indexused]
+									ypoint = tile.XPos + heightmap[indexused]
 								end
 								
 								local dist
@@ -934,15 +947,9 @@ function Player:UpdateWallCollision(dt)
 	
 	if detectedtile then
 		
-		
-		
-		
+
 				if dist < 0 then
-			
-			
-			
-			
-				
+
 				if mode == "upright" or mode == "ceiling" then
 				self.XSpeed = 0
 				else
@@ -950,26 +957,10 @@ function Player:UpdateWallCollision(dt)
 				end
 
 				self.GroundSpeed = 0
-				
-					
-				
-				
-				
-				
-		
-				
-			
-		
 		
 			
 		  end
-		
 
-		
-		
-		
-		
-	
 	end
 	
 	
@@ -987,9 +978,7 @@ function Player:CheckCanJump(dt)
 		sensorC = {self.XPos - self.WidthRadius, self.YPos - self.HeightRadius}
 		sensorD = {self.XPos + self.WidthRadius, self.YPos - self.HeightRadius}
 		
-		
-		
-		
+
 		elseif mode == "rightwall" then
 		
 		
