@@ -9,12 +9,12 @@ function Tile:new(XPos,YPos,TileId,ChunkId,TileProperties)
 	self.ChunkId = ChunkId
 	self.TileId = TileId
 	self.Quad = TileProperties.Quad
-	self.CanCollide = true
 	
 	self.Flags = {}
 
 	self.Flags.Flipped = TileProperties.Flipped or false
-
+	self.Flags.IgnoreCeiling = TileProperties.IgnoreCeiling or false
+	self.Flags.IgnoreWall = TileProperties.IgnoreWall or false
 end
 
 

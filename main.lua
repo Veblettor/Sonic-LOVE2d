@@ -17,7 +17,7 @@ function love.load()
 	Levels = require("Registry.Levels")
 	playerClass = require("Classes.Objects.player")
 	Camera = require("Libraries.Camera")
-	
+	Paused = false
 	
 	
 
@@ -106,13 +106,19 @@ function love.load()
 	
 	player = playerClass(9,20, characterList[1])
 	
-	player.XPos = 100
-	player.YPos = 100
+	player.XPos = 3215
+	player.YPos = 941
 end
 
+function love.keypressed(key,scancode,isrepeat)
+	if key == "return" then
+		Paused = not Paused
+	end
+end
 
 local TilesToDraw = {}
 function love.update(dt)
+	if not Paused then
 	tick.update(dt)
 	
 	
@@ -152,6 +158,8 @@ function love.update(dt)
 	
 	cam:lookAt(player.XPos+love.graphics.getWidth()/4,player.YPos+player.HeightRadius+love.graphics.getHeight()/4,player.WidthRadius,player.HeightRadius)
 	--cam:lookAt(player.XPos,player.YPos,player.WidthRadius,player.HeightRadius)
+
+end
 end
 
 function love.draw()
@@ -183,25 +191,14 @@ function love.draw()
 	
 	
 	
-	if player.DebugTile then
-		love.graphics.rectangle("line",player.DebugTile.XPos-16,player.DebugTile.YPos-16,16,16)
+	if player.Debug.DebugTile then
+		love.graphics.rectangle("line",player.Debug.DebugTile.XPos-16,player.Debug.DebugTile.YPos-16,16,16)
 	end
 	
-		if player.CollisionMode == "upright" then
-		love.graphics.points(player.XPos - player.WidthRadius, player.YPos + player.HeightRadius,player.XPos + player.WidthRadius, player.YPos + player.HeightRadius)
-		love.graphics.points(player.XPos+player.XSpeed - 10, player.YPos,player.XPos+player.XSpeed + 10, player.YPos)
-		love.graphics.points(player.XPos - player.WidthRadius, player.YPos - player.HeightRadius,player.XPos + player.WidthRadius, player.YPos - player.HeightRadius)
-		elseif player.CollisionMode == "rightwall"  then
+	
+
+		love.graphics.points(player.Debug.sensorA[1],player.Debug.sensorA[2],player.Debug.sensorB[1],player.Debug.sensorB[2],player.Debug.sensorC[1],player.Debug.sensorC[2],player.Debug.sensorD[1],player.Debug.sensorD[2],player.Debug.sensorE[1],player.Debug.sensorE[2],player.Debug.sensorF[1],player.Debug.sensorF[2]);
 		
-		love.graphics.points(player.XPos + player.HeightRadius, player.YPos + player.WidthRadius,player.XPos + player.HeightRadius, player.YPos - player.WidthRadius)
-		
-		elseif player.CollisionMode == "ceiling" then
-		
-		love.graphics.points(player.XPos - player.WidthRadius, player.YPos - player.HeightRadius,player.XPos + player.WidthRadius, player.YPos - player.HeightRadius)
-		
-		elseif player.CollisionMode == "leftwall" then
-			love.graphics.points(player.XPos - player.HeightRadius, player.YPos + player.WidthRadius,player.XPos - player.HeightRadius, player.YPos - player.WidthRadius)
-	end
 	
 	
 	cam:detach()
@@ -209,4 +206,6 @@ function love.draw()
 	love.graphics.print("GroundSpeed: "..player.GroundSpeed,0,30)
 	love.graphics.print("XPos: "..player.XPos,0,50)
 	love.graphics.print("YPos: "..player.YPos,0,70)
+	love.graphics.print("XSpd: "..player.XSpeed,0,90)
+	love.graphics.print("YSpd: "..player.YSpeed,0,110)
 end
