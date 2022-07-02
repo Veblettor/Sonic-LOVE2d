@@ -14,6 +14,7 @@ function Tile:new(XPos,YPos,TileId,ChunkId,TileProperties)
 	self.Flags = {}
 
 	self.Flags.Flipped = TileProperties.Flipped or false
+	self.Flags.FlippedHorizontal = TileProperties.FlippedHorizontal or false
 	self.Flags.IgnoreCeiling = TileProperties.IgnoreCeiling or false
 	self.Flags.IgnoreWall = TileProperties.IgnoreWall or false
 end

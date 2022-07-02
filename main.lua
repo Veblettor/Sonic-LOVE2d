@@ -2,10 +2,8 @@
 
 function love.load()
 	love.graphics.setDefaultFilter("nearest","nearest")
+	require("Libraries.math")
 	
-
-
-	love.window.setMode(1200,800)
 	Stages = require("Registry.Stages")
 	Object = require("Classes.classic")
 	TileClass = require("Classes.Terrain.tile")
@@ -13,10 +11,10 @@ function love.load()
 	BaseOBJ = require("Classes.Objects.baseobj")
 	tick = require("Libraries.tick")
 	characterList = require("Registry.Characters")
-	--SSheets = require("Registry.SpriteSheets")
+	
 	
 	playerClass = require("Classes.Objects.player")
-	Camera = require("Libraries.Camera")
+	Camera = require("Libraries.gamera")
 	Misc = require("Libraries.misc")
 	Paused = false
 	
@@ -100,15 +98,17 @@ function love.load()
 
 	GameMap = LoadLevel(Stages[1])
 	
-	cam = Camera()
-	
+	cam = Camera.new(0,0,1665,1025)
+	sc = 1
+	cam:setScale(sc+1)
 	
 	
 	
 	player = playerClass(9,20, characterList[1])
 	
 	player.XPos = 128
-	player.YPos = 128
+	player.YPos = 256
+	player:UpdateStep(0)
 end
 
 function love.keypressed(key,scancode,isrepeat)
@@ -117,66 +117,47 @@ function love.keypressed(key,scancode,isrepeat)
 	end
 end
 
-local TilesToDraw = {}
 function love.update(dt)
+	cam:setWindow(0,0,love.graphics.getWidth(),love.graphics.getHeight())
 	if not Paused then
 	tick.update(dt)
 	
+
+	player:UpdateStep(dt)
 	
-	player:UpdateMovement(dt)
-	player:UpdateAnimations(dt)
-	player:UpdateWallCollision(dt)
-	player:UpdateJump(dt)
-	player:UpdateMotion(dt)
-	player:UpdateCollision(dt)
-	if player.State == "InAir" then
-		player:UpdateCeilingCollision(dt)
+	
+	
+	
+	if love.keyboard.isDown("=") then
+	sc = math.min(2,sc+0.05)
+	elseif love.keyboard.isDown("-") then
+		sc = math.max(0.5,sc-0.05)
+	elseif love.keyboard.isDown("0") then
+		sc = 1
 	end
 
-	player.TimeSinceLastFrame = player.TimeSinceLastFrame + dt
-	
-	if player.CurrentAnimation == "Walking" or player.CurrentAnimation == "Running" then
-		player.FrameDelay = math.floor(math.max(0,8-math.abs(player.GroundSpeed))) / 60
-		--player.FrameDelay = 1
-		elseif player.CurrentAnimation == "Rolling" then
-		
-		player.FrameDelay = math.floor(math.max(0,4-math.abs(player.GroundSpeed))) / 60
-	end
-	
-	if player.TimeSinceLastFrame >= player.FrameDelay then
-		player.TimeSinceLastFrame = player.TimeSinceLastFrame - player.FrameDelay
-		
-		if player.CurrentAnimationFrame + 1 > player.Animations[player.CurrentAnimation].FrameCount then
-			player.CurrentAnimationFrame = 1
-			else
-			player.CurrentAnimationFrame = player.CurrentAnimationFrame + 1
-		end
-		
-		
-	end
-	
-	
-	
-	cam:lookAt(player.XPos+love.graphics.getWidth()/4,player.YPos+player.HeightRadius+love.graphics.getHeight()/4,player.WidthRadius,player.HeightRadius)
+
+	cam:setScale(sc+1)
+	--cam:lookAt(player.XPos+love.graphics.getWidth()/4,player.YPos+player.HeightRadius+love.graphics.getHeight()/4,player.WidthRadius,player.HeightRadius)
 	--cam:lookAt(player.XPos,player.YPos,player.WidthRadius,player.HeightRadius)
 
 end
 end
 
 function love.draw()
-	love.graphics.scale(2, 2)
+	--love.graphics.scale(2, 2)
+	love.graphics.setBackgroundColor(0,0.5,0.5,1)
+
 	
-	cam:attach()
 	
-	
-	
-	local CurrentAnim = player.Animations[player.CurrentAnimation]
+	local function DrawWorld(left,top,width,height)
+		local CurrentAnim = player.Animations[player.CurrentAnimation]
 	if player.Facing == "Right" then
 	
-	love.graphics.draw(CurrentAnim.SpriteSheet,CurrentAnim.Frames[player.CurrentAnimationFrame],player.XPos,player.YPos,-math.rad(player.ActualAngle),1,1,math.floor(CurrentAnim.FrameWidth/2),math.floor(CurrentAnim.FrameHeight/2))
+	love.graphics.draw(CurrentAnim.SpriteSheet,CurrentAnim.Frames[player.CurrentAnimationFrame],player.XPos,player.YPos,-math.rad(player.DrawAngle),1,1,math.floor(CurrentAnim.FrameWidth/2),math.floor(CurrentAnim.FrameHeight/2))
 	
 	else
-	love.graphics.draw(CurrentAnim.SpriteSheet,CurrentAnim.Frames[player.CurrentAnimationFrame],player.XPos,player.YPos,-math.rad(player.ActualAngle),-1,1,math.floor(CurrentAnim.FrameWidth/2),math.floor(CurrentAnim.FrameHeight/2))
+	love.graphics.draw(CurrentAnim.SpriteSheet,CurrentAnim.Frames[player.CurrentAnimationFrame],player.XPos,player.YPos,-math.rad(player.DrawAngle),-1,1,math.floor(CurrentAnim.FrameWidth/2),math.floor(CurrentAnim.FrameHeight/2))
 	end
 	
 
@@ -198,15 +179,18 @@ function love.draw()
 	
 	
 
-		love.graphics.points(player.Debug.sensorA[1],player.Debug.sensorA[2],player.Debug.sensorB[1],player.Debug.sensorB[2],player.Debug.sensorC[1],player.Debug.sensorC[2],player.Debug.sensorD[1],player.Debug.sensorD[2],player.Debug.sensorE[1],player.Debug.sensorE[2],player.Debug.sensorF[1],player.Debug.sensorF[2]);
+		love.graphics.points(player.Debug.sensorA[1],player.Debug.sensorA[2],player.Debug.sensorB[1],player.Debug.sensorB[2],player.Debug.sensorC[1],player.Debug.sensorC[2],player.Debug.sensorD[1],player.Debug.sensorD[2],player.Debug.sensorWall[1],player.Debug.sensorWall[2]);
 		
+	end
 	
 	
-	cam:detach()
+	cam:draw(DrawWorld)
+	
 	love.graphics.print("GroundAngle: "..player.GroundAngle,0,10)
 	love.graphics.print("GroundSpeed: "..player.GroundSpeed,0,30)
 	love.graphics.print("XPos: "..player.XPos,0,50)
 	love.graphics.print("YPos: "..player.YPos,0,70)
 	love.graphics.print("XSpd: "..player.XSpeed,0,90)
 	love.graphics.print("YSpd: "..player.YSpeed,0,110)
+	love.graphics.print("TDraw: "..player.TargetDrawAngle,0,130)
 end
