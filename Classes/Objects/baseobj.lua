@@ -13,7 +13,7 @@ function BaseOBJ:new(Width,Height)
 	self.YPos = 0
 	self.XSpeed = 0
 	self.YSpeed = 0
-	self.GroundSpeed = 0
+	
 	self.GroundAngle = 0
 	self.DrawAngle = 0
 	self.TargetDrawAngle = 0

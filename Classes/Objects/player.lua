@@ -870,7 +870,7 @@ local hmheight
 end
 
 
-function Player:UpdateWallCollision(dt)
+function Player.UpdateWallCollision(self,dt)
 	local sensorE
 	local sensorF
 	local newgrnd = self.GroundSpeed
@@ -1014,7 +1014,7 @@ end
 			end
 		end
 	
-	
+	print("new: "..newgrnd)
 	self.GroundSpeed = newgrnd
 	print(self.GroundSpeed)
 end
@@ -1569,9 +1569,9 @@ function Player:UpdateStep(dt)
 		self:UpdateJump(dt)
 		self:UpdateMovement(dt)
 		
-		self:UpdateWallCollision(dt)
+		self.UpdateWallCollision(self,dt)
 		--print(new)
-		print(self.GroundSpeed)
+		print("After: "..self.GroundSpeed)
 		cam:setPosition(self.XPos,self.YPos)
 		self:UpdateMotion(dt,self.GroundSpeed)
 		self:UpdateCollision(dt)
