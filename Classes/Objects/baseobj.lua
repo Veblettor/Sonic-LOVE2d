@@ -58,8 +58,16 @@ function BaseOBJ:UpdateMotion(dt,grnd)
 
 	if self.State == "Grounded" or self.State == "Rolling" then
 			
-			self.XSpeed = grnd * math.cos(math.rad(self.GroundAngle))
-			self.YSpeed = grnd * -math.sin(math.rad(self.GroundAngle))
+			local a = self.GroundAngle
+			
+			if a < 0 then
+				a = 360 + self.GroundAngle
+			end
+			
+			self.XSpeed = grnd * math.cos(math.rad(a))
+			self.YSpeed = grnd * -math.sin(math.rad(a))
+	
+			
 	
 			self.XPos = self.XPos + self.XSpeed
 			self.YPos = self.YPos + self.YSpeed
@@ -76,7 +84,7 @@ function BaseOBJ:UpdateMotion(dt,grnd)
 			self.YSpeed = self.YSpeed + self.Grv
 
 			if self.YSpeed > 16 then self.YSpeed = 16 end
-		
+			
 			if self.GroundAngle < 0 then
 				self.GroundAngle = math.min(self.GroundAngle + 2.8125,0)
 			elseif self.GroundAngle > 0 then

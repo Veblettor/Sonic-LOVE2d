@@ -17,7 +17,7 @@ function love.load()
 	Camera = require("Libraries.gamera")
 	Misc = require("Libraries.misc")
 	Paused = false
-	
+	Slowdown = false
 
 
 	function LoadLevel(Level)
@@ -98,7 +98,7 @@ function love.load()
 
 	GameMap = LoadLevel(Stages[1])
 	
-	cam = Camera.new(0,0,1665,1025)
+	cam = Camera.new(0,0,3585,1665)
 	sc = 1
 	cam:setScale(sc+1)
 	
@@ -114,19 +114,47 @@ end
 function love.keypressed(key,scancode,isrepeat)
 	if key == "return" then
 		Paused = not Paused
+	elseif key == "v" then
+		Slowdown = not Slowdown
+	elseif Paused and love.keyboard.isDown("f") then
+	local mydt = 1/60
+	cam:setWindow(0,0,love.graphics.getWidth(),love.graphics.getHeight())
+	if love.keyboard.isDown("=") then
+	sc = math.min(2,sc+0.05)
+	elseif love.keyboard.isDown("-") then
+		sc = math.max(0.5,sc-0.05)
+	elseif love.keyboard.isDown("0") then
+		sc = 1
+	end
+	
+	
+	
+	
+	tick.update(mydt)
+	
+
+	player:UpdateStep(mydt)
+	
+	
+	
+	
+	
+
+
+	cam:setScale(sc+1)
 	end
 end
 
+local fps = 0
 function love.update(dt)
+	fps = fps + 1
 	cam:setWindow(0,0,love.graphics.getWidth(),love.graphics.getHeight())
+	
+	
+		
+	
+	
 	if not Paused then
-	tick.update(dt)
-	
-
-	player:UpdateStep(dt)
-	
-	
-	
 	
 	if love.keyboard.isDown("=") then
 	sc = math.min(2,sc+0.05)
@@ -135,12 +163,25 @@ function love.update(dt)
 	elseif love.keyboard.isDown("0") then
 		sc = 1
 	end
+	
+	if not Slowdown or fps % 4 == 0 then
+	
+	
+	tick.update(dt)
+	
+
+	player:UpdateStep(dt)
+	
+	
+	
+	
+	
 
 
 	cam:setScale(sc+1)
 	--cam:lookAt(player.XPos+love.graphics.getWidth()/4,player.YPos+player.HeightRadius+love.graphics.getHeight()/4,player.WidthRadius,player.HeightRadius)
 	--cam:lookAt(player.XPos,player.YPos,player.WidthRadius,player.HeightRadius)
-
+end
 end
 end
 

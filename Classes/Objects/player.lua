@@ -20,6 +20,8 @@ function Player:new(X,Y,CharacterProperties)
 
 	self.State = "InAir"
 	self.Facing = "Right"
+	self.ChangeCD = 0
+	self.ControlLock = 0
 	self.CurrentAnimation = "Idle"
 	self.CurrentAnimationFrame = 1
 	self.TimeSinceLastFrame = 0
@@ -67,7 +69,7 @@ end
 function Player:ChangeAnimation(AnimationName)
 
 	
-
+	
 	self.CurrentAnimation = AnimationName
 	self.CurrentAnimationFrame = 1
 	self.TimeSinceLastFrame = 0
@@ -80,10 +82,10 @@ end
 
 function Player:UpdateCollisionMode()
 
-local mode = "upright"
+local mode
 	
-if self.State ~= "InAir" then
-
+if self.State ~= "InAir" and self.ChangeCD <= 0 then
+	
 	local ang = self.GroundAngle
 	
 	if math.sign(ang) == -1 then
@@ -103,44 +105,57 @@ if self.State ~= "InAir" then
 	elseif ang > 314 then		
 		mode = "upright"
 	end
-		
+	
+	if mode ~= self.CollisionMode then
+		--self.ChangeCD = 10
+	end	
+elseif self.ChangeCD <= 0 then
+	mode = "upright"
 end	
 		
-
+	if mode then
 	self.CollisionMode = mode
+	end
+	
+	
 end
 
 function Player:UpdateAnimations(dt)
 	if self.GroundAngle == 360 then self.GroundAngle = 0 end
 
-	if self.CurrentAnimation == "Rolling" then
-		self.WidthRadius = self.RollWidth
-		self.HeightRadius = self.RollHeight
-	else
-		self.WidthRadius = self.BaseWidth
-		self.HeightRadius = self.BaseHeight
-	end
+	
 
 	if self.State == "Grounded" then
 	
 	if math.abs(self.GroundSpeed) == 0 and self.CurrentAnimation ~= "Idle" then
 		self:ChangeAnimation("Idle")
-		
 		elseif math.abs(self.GroundSpeed) < 6 and math.abs(self.GroundSpeed) > 0 and self.CurrentAnimation ~= "Walking" then
 		self:ChangeAnimation("Walking")
-		
 		elseif math.abs(self.GroundSpeed) >= 6 and self.CurrentAnimation ~= "Running" then
 		self:ChangeAnimation("Running")
-		
 	end
 	
 	elseif self.State == "Rolling" and self.CurrentAnimation ~= "Rolling" then
+		
 		self:ChangeAnimation("Rolling")
+		
 	end
 	
 	if self.HoldingJump and self.CurrentAnimation ~= "Rolling" then
 		self:ChangeAnimation("Rolling")
 	end
+	
+	if self.CurrentAnimation == "Rolling" then
+		self.WidthRadius = self.RollWidth
+		self.HeightRadius = self.RollHeight
+		
+	else
+		self.WidthRadius = self.BaseWidth
+		self.HeightRadius = self.BaseHeight
+		
+	end
+	
+	
 end
 
 function Player:UpdateJump(dt)
@@ -194,14 +209,48 @@ function Player:UpdateSlpFactor(dt)
 	if self.CollisionMode and self.CollisionMode ~= "ceiling" and self.GroundSpeed ~= 0 then
 		if self.State == "Rolling" then
 			if math.sign(self.GroundSpeed) == math.sign(self.GroundAngle) then
-				self.GroundSpeed = self.GroundSpeed - self.Slprollup*math.sin(self.GroundAngle)
+				self.GroundSpeed = self.GroundSpeed - self.Slprollup*math.sin(math.rad(self.GroundAngle))
 				else
-				self.GroundSpeed = self.GroundSpeed - self.Slprolldown*math.sin(self.GroundAngle)
+				self.GroundSpeed = self.GroundSpeed - self.Slprolldown*math.sin(math.rad(self.GroundAngle))
 			end
 		elseif self.CollisionMode then
-			self.GroundSpeed = self.GroundSpeed - self.Slp*math.sin(self.GroundAngle)
+			self.GroundSpeed = self.GroundSpeed - self.Slp*math.sin(math.rad(self.GroundAngle))
 		end
 	end
+end
+
+function Player:ManageControlLock()
+	if self.ControlLock == 0 then
+		
+				local ang = self.GroundAngle
+				
+				if math.sign(ang) == -1 then ang = 360 + ang end
+		
+				if math.abs(self.GroundSpeed) < 2.5 and ang > 34 and ang < 327 then
+					
+					
+					
+					self.ControlLock = 30
+					
+					if ang > 68 and ang < 294 then
+						self.State = "InAir"
+						else
+						
+						if ang < 180 then
+							self.GroundSpeed = self.GroundSpeed - 0.5
+						else
+							self.GroundSpeed = self.GroundSpeed + 0.5
+						end
+					
+					end
+					
+					
+					
+				end
+			elseif self.ControlLock > 0 then
+			self.ControlLock = self.ControlLock - 1
+			if self.ControlLock < 0 then self.ControlLock = 0 end
+		end
 end
 
 function Player:UpdateMovement(dt)
@@ -212,6 +261,8 @@ function Player:UpdateMovement(dt)
 	
 		self.Facing = "Left"
 	
+		if self.ControlLock == 0 then
+		
 		if self.GroundSpeed > 0 then
 			
 			self.GroundSpeed = self.GroundSpeed - self.Dec
@@ -229,11 +280,14 @@ function Player:UpdateMovement(dt)
 			end
 			
 		end
+		end
 	
 	
 		elseif love.keyboard.isDown("d") then
 		
 		self.Facing = "Right"
+		
+		if self.ControlLock == 0 then
 		
 		if self.GroundSpeed < 0 then
 			
@@ -253,9 +307,13 @@ function Player:UpdateMovement(dt)
 			
 		end
 		
+		end
 		
 		
 		else
+		
+		
+		
 		
 		if self.GroundSpeed ~= 0 then
 		self.GroundSpeed = self.GroundSpeed - math.min(math.abs(self.GroundSpeed),self.Frc) * math.sign(self.GroundSpeed)
@@ -265,8 +323,11 @@ function Player:UpdateMovement(dt)
 	if love.keyboard.isDown("s") then
 		
 		if math.abs(self.XSpeed) >= 1 then
+			
 			self.State = "Rolling"
-
+			
+			self:UpdateAnimations(dt)
+			
 		
 		end
 	end
@@ -278,6 +339,8 @@ function Player:UpdateMovement(dt)
 		if love.keyboard.isDown("a") then
 	
 			self.Facing = "Left"
+			
+			if self.ControlLock == 0 then
 			
 			if (self.XSpeed > -self.Top) then
 			
@@ -294,10 +357,13 @@ function Player:UpdateMovement(dt)
 
 		end
 	
+		end
 	
 		elseif love.keyboard.isDown("d") then
 		
 			self.Facing = "Right"
+			
+			if self.ControlLock == 0 then
 			
 			if (self.GroundSpeed < self.Top) then
 			
@@ -316,7 +382,7 @@ function Player:UpdateMovement(dt)
 
 			end
 
-		
+			end
 
 	end
 	
@@ -379,13 +445,30 @@ function Player:UpdateMovement(dt)
 	
 	if self.GroundSpeed == 0 or love.keyboard.isDown("w") then
 		self.State = "Grounded"
-
+		
 		
 	end
 	
 	end
 	
 	
+end
+
+function Player:DebugControls(dt)
+
+if love.keyboard.isDown("z") then
+self.XPos = 128
+self.YPos = 256
+end
+
+if love.keyboard.isDown("x") then
+self.GroundSpeed = 18
+end
+
+if love.keyboard.isDown("c") then
+self.YSpeed = self.YSpeed - 0.33
+end
+
 end
 
 function Player:SnapToNearest90Degrees()
@@ -895,24 +978,24 @@ function Player.UpdateWallCollision(self,dt)
 		
 		
 
-		sensorE = {self.XPos+addx-10, self.YPos+addy+yFactor}
-		sensorF = {self.XPos+addx+10, self.YPos+addy+yFactor}
+		sensorE = {self.XPos+addx-11, self.YPos+addy+yFactor}
+		sensorF = {self.XPos+addx+11, self.YPos+addy+yFactor}
 		
 		
 		
 	elseif mode == "rightwall" then
-		sensorE = {self.XPos+addx+yFactor, self.YPos+addy - 10}
-		sensorF = {self.XPos+addx+yFactor, self.YPos+addy + 10}
+		sensorE = {self.XPos+addx+yFactor, self.YPos+addy - 11}
+		sensorF = {self.XPos+addx+yFactor, self.YPos+addy + 11}
 		
 	elseif mode == "ceiling" then
 	
-	sensorE = {self.XPos+addx + 10, self.YPos+addy-yFactor}
-	sensorF = {self.XPos+addx - 10, self.YPos+addy-yFactor}
+	sensorE = {self.XPos+addx + 11, self.YPos+addy-yFactor}
+	sensorF = {self.XPos+addx - 11, self.YPos+addy-yFactor}
 	
 	elseif mode == "leftwall" then
 		
-		sensorE = {self.XPos+addx+yFactor, self.YPos+addy + 10}
-		sensorF = {self.XPos+addx+yFactor, self.YPos+addy - 10}
+		sensorE = {self.XPos+addx+yFactor, self.YPos+addy + 11}
+		sensorF = {self.XPos+addx+yFactor, self.YPos+addy + 11}
 		
 	end
 
@@ -1004,6 +1087,8 @@ end
 							self.YPos =  self.YPos + (self.YSpeed + dist)
 						end
 					end
+					
+					
 					self.YSpeed = 0
 					
 			 	end
@@ -1014,9 +1099,9 @@ end
 			end
 		end
 	
-	print("new: "..newgrnd)
+	
 	self.GroundSpeed = newgrnd
-	print(self.GroundSpeed)
+	
 end
 
 function Player:CheckCanJump(dt)
@@ -1450,23 +1535,26 @@ function Player:UpdateCollision(dt)
 					if moving == "horizontal" then
 						self.GroundSpeed = self.XSpeed
 					else
-						self.GroundSpeed = self.YSpeed * 0.5 * -(math.sign(math.sin(self.GroundAngle)))
+						self.GroundSpeed = self.YSpeed * 0.5 * -(math.sign(math.sin(math.rad(self.GroundAngle))))
 					end
 				elseif (absangle > 45 and absangle < 91) or (absangle > 271 and absangle < 315) then
 					if moving == "horizontal" then
 						self.GroundSpeed = self.XSpeed
 					else
 						
-						self.GroundSpeed = self.YSpeed * -(math.sign(math.sin(self.GroundAngle)))
+						self.GroundSpeed = self.YSpeed * -(math.sign(math.sin(math.rad(self.GroundAngle))))
 						
 					end
 				end
 					
 					self.YPos = self.YPos + winnerdist
+					local anim = self.CurrentAnimation
+					self.State = "Grounded"
+					self:UpdateAnimations(dt)
 					
-					self.State = "Grounded"	
-			
-		
+					if anim == "Rolling" then
+					self.YPos = self.YPos - 5
+					end
 			end
 
 		end
@@ -1561,21 +1649,24 @@ end
 
 
 function Player:UpdateStep(dt)
+	if self.ChangeCD > 0 then self.ChangeCD = self.ChangeCD - 1 end
+	self:DebugControls()
 	self:UpdateAnimations()
 	self:UpdateCollisionMode()
 	if not self.GroundSpeed then self.GroundSpeed = 0 end
 	if self.State == "Grounded" or self.State == "Rolling" then
+	if self.GroundSpeed > 16 then self.GroundSpeed = 16 end
 		self:UpdateSlpFactor(dt)
 		self:UpdateJump(dt)
 		self:UpdateMovement(dt)
 		
 		self.UpdateWallCollision(self,dt)
 		--print(new)
-		print("After: "..self.GroundSpeed)
+		
 		cam:setPosition(self.XPos,self.YPos)
 		self:UpdateMotion(dt,self.GroundSpeed)
+		self:ManageControlLock()
 		self:UpdateCollision(dt)
-		
 	elseif self.State == "InAir" then
 		self:UpdateJump(dt)
 		self:UpdateMovement(dt)
@@ -1606,6 +1697,7 @@ function Player:UpdateStep(dt)
 			
 		end
 		cam:setPosition(self.XPos,self.YPos)
+		
 	end
 	
 	
