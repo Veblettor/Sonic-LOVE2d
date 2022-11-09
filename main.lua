@@ -2,10 +2,12 @@
 
 function love.load()
 	love.graphics.setDefaultFilter("nearest","nearest")
+	Object = require("Classes.classic")
 	require("Libraries.math")
 	
+	Vector2 = require("Classes.DataTypes.vector2")
+
 	Stages = require("Registry.Stages")
-	Object = require("Classes.classic")
 	TileClass = require("Classes.Terrain.tile")
 	ChunkClass = require("Classes.Terrain.chunk")
 	BaseOBJ = require("Classes.Objects.baseobj")
@@ -14,6 +16,7 @@ function love.load()
 	
 	
 	playerClass = require("Classes.Objects.player")
+	
 	Camera = require("Libraries.gamera")
 	Misc = require("Libraries.misc")
 	Paused = false
@@ -233,5 +236,6 @@ function love.draw()
 	love.graphics.print("YPos: "..player.YPos,0,70)
 	love.graphics.print("XSpd: "..player.XSpeed,0,90)
 	love.graphics.print("YSpd: "..player.YSpeed,0,110)
-	love.graphics.print("TDraw: "..player.TargetDrawAngle,0,130)
+	love.graphics.print("State: "..player.State,0,130)
+	
 end

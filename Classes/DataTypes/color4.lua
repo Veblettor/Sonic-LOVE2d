@@ -1,17 +1,20 @@
 
-
 Color4 = Object:extend()
 
 
 function Color4:new(r,g,b,a)
-	self.Red = r
-	self.Green = g
-	self.Blue = b
-	self.Alpha = a
+	self.Red = r or 0
+	self.Green = g or 0
+	self.Blue = b or 0
+	self.Alpha = a or 1
+end
+
+function Color4:__tostring()
+    return self.Red..", "..self.Green..", "..self.Blue..", "..self.Alpha
 end
 
 function Color4:fromRGBA(r,g,b,a)
-	return self:new(r/255,g/255,b/255,a/255)
+	return Color4(r/255,g/255,b/255,a/255)
 end
 
 function Color4:fromHSLA(h,s,l,a)
@@ -51,7 +54,7 @@ function Color4:fromHSLA(h,s,l,a)
 		b = huetorgb(p,q,h - 1/3)
 	end
 
-	return self:new(r,g,b,a)
+	return Color4(r,g,b,a)
 end
 
 function Color4:serialize()

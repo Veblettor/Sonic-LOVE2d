@@ -7,8 +7,9 @@ function BaseOBJ:new(Width,Height)
 	
 
 
-	self.PrevXPos = 0
-	self.PrevYPos = 0
+	self.Position = Vector2(0,0)
+	self.Speed = Vector2(0,0)
+	self.Radius = Vector2(Width,Height)
 	self.XPos = 0
 	self.YPos = 0
 	self.XSpeed = 0
@@ -20,8 +21,10 @@ function BaseOBJ:new(Width,Height)
 	self.WidthRadius = Width
 	self.HeightRadius = Height
 	
-	
-	
+	print("Radius: "..tostring(self.Radius))
+	print("Radius Mag: "..tostring(self.Radius:Magnitude()))
+	print("Radius Unit: "..tostring(self.Radius:Unit()))
+	print(tostring(Vector2(5,2) + self.Radius))
 	self.Grv = 0.21875
 	self.State = "Grounded"
 end
