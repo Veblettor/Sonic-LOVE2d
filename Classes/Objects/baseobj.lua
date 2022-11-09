@@ -24,7 +24,7 @@ function BaseOBJ:new(Width,Height)
 	print("Radius: "..tostring(self.Radius))
 	print("Radius Mag: "..tostring(self.Radius:Magnitude()))
 	print("Radius Unit: "..tostring(self.Radius:Unit()))
-	print(tostring(Vector2(5,2) + self.Radius))
+	print(tostring(-self.Radius))
 	self.Grv = 0.21875
 	self.State = "Grounded"
 end

@@ -9,7 +9,7 @@ function Vector2:__tostring()
     return self.X..", "..self.Y
 end
 
-function Vector2:unm()
+function Vector2:__unm()
     return Vector2(-self.X,-self.Y)
 end
 
@@ -69,7 +69,33 @@ function Vector2.__div(a, b)
     end
 end
 
+function Vector2.__mod(a, b)
+    if type(a) == "number" then
+        local scalar,vector = a,b
 
+        return Vector2(scalar % vector.X,scalar % vector.Y)
+    elseif type(b) == "number" then
+        local vector,scalar = a,b
+
+        return Vector2(vector.X % scalar, vector.Y % scalar)
+    elseif (type(a) == "table" and a:is(Vector2)) and (type(b) == "table" and b:is(Vector2)) then
+        return Vector2(a.X % b.X, a.Y % b.Y)
+    end
+end
+
+function Vector2.__pow(a, b)
+    if type(a) == "number" then
+        local scalar,vector = a,b
+
+        return Vector2(scalar^vector.X,scalar^vector.Y)
+    elseif type(b) == "number" then
+        local vector,scalar = a,b
+
+        return Vector2(vector.X^scalar, vector.Y^scalar)
+    elseif (type(a) == "table" and a:is(Vector2)) and (type(b) == "table" and b:is(Vector2)) then
+        return Vector2(a.X^b.X, a.Y^b.Y)
+    end
+end
 
 
 
@@ -84,6 +110,22 @@ function Vector2:Unit()
 local mag = self:Magnitude()
 
 return Vector2(self.X/mag,self.Y/mag)
+end
+
+function Vector2:Dot(Vector)
+return (self.X * Vector.X) + (self.Y * Vector.Y)
+end
+
+function Vector2:Cross(Vector)
+return (self.X*Vector.Y) - (self.Y*Vector.X)
+end
+
+function Vector2:Max(Vector)
+return Vector2(math.max(self.X,Vector.X),math.max(self.Y,Vector.Y))
+end
+
+function Vector2:Min(Vector)
+    return Vector2(math.min(self.X,Vector.X),math.min(self.Y,Vector.Y))
 end
 
 Vector2.zero = Vector2(0,0)
