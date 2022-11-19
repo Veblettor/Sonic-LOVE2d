@@ -24,19 +24,19 @@ function BaseOBJ:new(Width,Height)
 	print("Radius: "..tostring(self.Radius))
 	print("Radius Mag: "..tostring(self.Radius:Magnitude()))
 	print("Radius Unit: "..tostring(self.Radius:Unit()))
-	print(tostring(Vector2(5,2) + self.Radius))
+	print(tostring(-self.Radius))
 	self.Grv = 0.21875
 	self.State = "Grounded"
 end
 
-function BaseOBJ:UpdateMotion(dt,grnd)
+function BaseOBJ:UpdateMotion(dt)
 
 	local speedcalc
 
 	if self.State == "InAir" then
 		speedcalc = math.max(math.abs(self.XSpeed/2),0.5)
 	else
-		speedcalc = math.max(math.abs(grnd/2),0.5)
+		speedcalc = math.max(math.abs(self.GroundSpeed/2),0.5)
 	end
 
 	if math.sign(self.DrawAngle) == -1 and self.TargetDrawAngle == 0 and math.abs(self.DrawAngle - self.TargetDrawAngle) > 180 then
@@ -61,14 +61,7 @@ function BaseOBJ:UpdateMotion(dt,grnd)
 
 	if self.State == "Grounded" or self.State == "Rolling" then
 			
-			local a = self.GroundAngle
-			
-			if a < 0 then
-				a = 360 + self.GroundAngle
-			end
-			
-			self.XSpeed = grnd * math.cos(math.rad(a))
-			self.YSpeed = grnd * -math.sin(math.rad(a))
+		
 	
 			
 	

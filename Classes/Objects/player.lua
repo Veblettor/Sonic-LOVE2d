@@ -29,7 +29,9 @@ function Player:new(X,Y,CharacterProperties)
 	self.CollisionMode = "upright"
 	self.HoldingJump = false
 	self.GroundSpeed = 0
-
+	
+	self.GroundHeightIndex = 0
+	
 	self.XPos = X
 	self.YPos = Y
 
@@ -53,7 +55,14 @@ function Player:new(X,Y,CharacterProperties)
 	self.RollWidth = CharacterProperties.Scale.RollWidth
 	self.RollHeight = CharacterProperties.Scale.RollHeight
 	
-
+	self.Inputs = 
+	{
+		Up = 0;
+		Down = 0;
+		Left = 0;
+		Right = 0;
+		Jump = 0;
+	}
 
 	for i,v in pairs(self.Animations) do
 		v.Frames = {}
@@ -1092,13 +1101,13 @@ function Player.UpdateWallCollision(self,dt)
 	
 	local yFactor = 0
 
-	if self.GroundAngle == 0 and (self.State == "Grounded" or self.State == "Rolling") then
+	if self.GroundAngle == 0 and (self.State == "Grounded" or self.State == "Rolling") and self.GroundHeightIndex == 16 then
 		yFactor = 8
 	end
 
 	
-	local addy = 0--self.YSpeed
-	local addx = 0--self.XSpeed
+	local addy = self.YSpeed
+	local addx = self.XSpeed
 	
 	if self.State == "InAir" then
 		addy = 0
@@ -1194,7 +1203,7 @@ function Player.UpdateWallCollision(self,dt)
 end
 print("xspd: "..self.XSpeed)
 	self.Debug.sensorWall = sensor
-	local detectedtile,dist,hmindex,hmheight = self:GetNearestFloor(sensor,32,face)
+	local detectedtile,dist,hmindex,hmheight = self:GetNearestFloor(sensor,11,face)
 	
 	if hmheight == 16 then
 		local newtile,newdist = self:RegressTile(sensor,face,detectedtile,hmindex)
@@ -1234,13 +1243,26 @@ print("xspd: "..self.XSpeed)
 						end
 						self.XSpeed = 0
 					else
-						if math.sign(self.GroundSpeed) == -1 then
 						
+						
+						if mode == "ceiling" then
+							if math.sign(self.GroundSpeed) == -1 then
+						--self.XPos =  self.XPos - dist
 						self.XSpeed = self.XSpeed + dist
 						else
-						
+						--self.XPos =  self.XPos + dist
 						self.XSpeed = self.XSpeed - dist
 						end
+							else
+							if math.sign(self.GroundSpeed) == -1 then
+						--self.XPos =  self.XPos - dist
+						self.XSpeed = self.XSpeed - dist
+						else
+						--self.XPos =  self.XPos + dist
+						self.XSpeed = self.XSpeed + dist
+						end
+						end
+						
 						self.GroundSpeed = 0
 					end
 					
@@ -1256,16 +1278,21 @@ print("xspd: "..self.XSpeed)
 						else
 							self.YPos =  self.YPos +  dist
 						end
+						self.YSpeed = 0
 					else
 						if math.sign(self.GroundSpeed) == -1 then
-							self.YPos =  self.YPos + (self.YSpeed - dist)
+						--self.YPos =  self.YPos - dist
+						self.YSpeed = self.YSpeed - dist
 						else
-							self.YPos =  self.YPos + (self.YSpeed + dist)
+						--self.YPos =  self.YPos + dist
+						self.YSpeed = self.YSpeed + dist
 						end
+						
+						self.GroundSpeed = 0
 					end
 					
 					
-					self.YSpeed = 0
+					
 					
 			 	end
 
@@ -1742,10 +1769,10 @@ function Player:UpdateCollision(dt)
 		
 		if not winnertile then
 			self.State = "InAir"
-			
+			self.GroundHeightIndex = 0
 			else
 				self.Debug.DebugTile = winnertile
-				
+				self.GroundHeightIndex = winnerh
 				local calc
 
 				if mode == "upright" or mode == "ceiling" then
@@ -1809,7 +1836,7 @@ function Player:UpdateCollision(dt)
 				
 				
 			end
-
+				self.GroundHeightIndex = winnerh
 			else
 			
 			self.State = "InAir"
@@ -1830,27 +1857,36 @@ function Player:UpdateStep(dt)
 	self:DebugControls()
 	self:UpdateAnimations()
 	self:UpdateCollisionMode()
-	if not self.GroundSpeed then self.GroundSpeed = 0 end
+	
 	if self.State == "Grounded" or self.State == "Rolling" then
 	if self.GroundSpeed > 16 then self.GroundSpeed = 16 end
 		self:UpdateSlpFactor(dt)
 		self:UpdateJump(dt)
 		self:UpdateMovement(dt)
 		
-		
-		--print(new)
-		
 		local ang = self.GroundAngle
 
 		if math.sign(ang) == -1 then ang = 360 + ang end
 
-		if ((ang < 91) or (ang > 269 and ang < 361)) and self.GroundSpeed ~= 0 then
+			
+		if self.State == "Grounded" or self.State == "Rolling" then
+		self.XSpeed = self.GroundSpeed * math.cos(math.rad(ang))
+		self.YSpeed = self.GroundSpeed * -math.sin(math.rad(ang))
+		
+		
+		if ((ang < 91) or (ang > 269 and ang < 361) or ang == 180) and self.GroundSpeed ~= 0 then
 		self:UpdateWallCollision(dt)
 		end
 		
-		self:UpdateMotion(dt,self.GroundSpeed)
+		self:UpdateMotion(dt)
 		self:ManageControlLock()
+		
+		
+		
 		self:UpdateCollision(dt)
+		
+		end
+		
 		cam:setPosition(self.XPos,self.YPos)
 	elseif self.State == "InAir" then
 		self:UpdateJump(dt)
