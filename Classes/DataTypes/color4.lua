@@ -13,6 +13,10 @@ function Color4:__tostring()
     return self.Red..", "..self.Green..", "..self.Blue..", "..self.Alpha
 end
 
+function Color4:__unm()
+	return Color4(1-self.Red,1-self.Green,1-self.Blue,self.Alpha)
+end
+
 function Color4:fromRGBA(r,g,b,a)
 	return Color4(r/255,g/255,b/255,a/255)
 end
