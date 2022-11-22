@@ -1,15 +1,16 @@
 
 
-local BaseOBJ = Object:extend()
+local BaseOBJ = Class:extend()
 
 
 function BaseOBJ:new(Width,Height)
 	
 
-
-	self.Position = Vector2(0,0)
-	self.Speed = Vector2(0,0)
 	self.Radius = Vector2(Width,Height)
+	self.Position = Vector2(0,0)
+	
+	self.Speed = Vector2(0,0)
+	
 	self.XPos = 0
 	self.YPos = 0
 	self.XSpeed = 0
@@ -20,13 +21,11 @@ function BaseOBJ:new(Width,Height)
 	self.TargetDrawAngle = 0
 	self.WidthRadius = Width
 	self.HeightRadius = Height
-	
-	print("Radius: "..tostring(self.Radius))
-	print("Radius Mag: "..tostring(self.Radius:Magnitude()))
-	print("Radius Unit: "..tostring(self.Radius:Unit()))
-	print(tostring(-self.Radius))
+	self.GroundSpeed = 0
+
 	self.Grv = 0.21875
 	self.State = "Grounded"
+	print(self.Radius)
 end
 
 function BaseOBJ:UpdateMotion(dt)
@@ -34,7 +33,7 @@ function BaseOBJ:UpdateMotion(dt)
 	local speedcalc
 
 	if self.State == "InAir" then
-		speedcalc = math.max(math.abs(self.XSpeed/2),0.5)
+		speedcalc = math.max(math.abs(self.Speed.X/2),0.5)
 	else
 		speedcalc = math.max(math.abs(self.GroundSpeed/2),0.5)
 	end
@@ -64,22 +63,23 @@ function BaseOBJ:UpdateMotion(dt)
 		
 	
 			
-	
-			self.XPos = self.XPos + self.XSpeed
-			self.YPos = self.YPos + self.YSpeed
+			self.Position = self.Position + self.Speed
+		--	self.XPos = self.XPos + self.XSpeed
+		--	self.YPos = self.YPos + self.YSpeed
 		
 		elseif self.State == "InAir" then
 			self.TargetDrawAngle = 0
-			self.XPos = self.XPos + self.XSpeed
-			self.YPos = self.YPos + self.YSpeed
+			self.Position = self.Position + self.Speed
+		--	self.XPos = self.XPos + self.XSpeed
+		--	self.YPos = self.YPos + self.YSpeed
 		
-			if self.YSpeed < 0 and self.YSpeed > -4 then
-				self.XSpeed = self.XSpeed - (self.XSpeed/0.125)/256
+			if self.Speed.Y < 0 and self.Speed.Y > -4 then
+				self.Speed.X = self.Speed.X - (self.Speed.X/0.125)/256
 			end
 		
-			self.YSpeed = self.YSpeed + self.Grv
+			self.Speed.Y = self.Speed.Y + self.Grv
 
-			if self.YSpeed > 16 then self.YSpeed = 16 end
+			if self.Speed.Y > 16 then self.Speed.Y = 16 end
 			
 			if self.GroundAngle < 0 then
 				self.GroundAngle = math.min(self.GroundAngle + 2.8125,0)
@@ -89,7 +89,7 @@ function BaseOBJ:UpdateMotion(dt)
 
 			
 	end
-
+	
 end
 
 return BaseOBJ

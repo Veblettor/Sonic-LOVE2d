@@ -1,4 +1,4 @@
-Vector2 = Object:extend()
+Vector2 = Class:extend()
 
 function Vector2:new(x,y)
     self.X = x or 0
@@ -126,6 +126,24 @@ end
 
 function Vector2:Min(Vector)
     return Vector2(math.min(self.X,Vector.X),math.min(self.Y,Vector.Y))
+end
+
+function Vector2:Abs()
+local x,y = self:Unpack()
+
+if math.sign(x) == -1 then x = -x end
+if math.sign(y) == -1 then y = -y end
+
+return Vector2(x,y)
+end
+
+function Vector2:Floor()
+return Vector2(math.floor(self.X),math.floor(self.Y))
+end
+
+
+function Vector2:Unpack()
+    return self.X,self.Y
 end
 
 Vector2.zero = Vector2(0,0)

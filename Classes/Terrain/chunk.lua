@@ -1,4 +1,4 @@
-Chunk = Object:extend()
+Chunk = Class:extend()
 require("Libraries.misc")
 
 function Chunk:new(XPos,YPos,ChunkProperties)

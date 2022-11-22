@@ -1,4 +1,4 @@
-Tile = Object:extend()
+Tile = Class:extend()
 
 
 function Tile:new(XPos,YPos,TileId,ChunkId,TileProperties)

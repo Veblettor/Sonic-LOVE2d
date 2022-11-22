@@ -1,4 +1,4 @@
-Event = Object:extend()
+Event = Class:extend()
 
 function Event:new()
 Event.__connections = {}
@@ -57,3 +57,5 @@ for i,signal in pairs(self.__connections) do
 end
 
 end
+
+return Event

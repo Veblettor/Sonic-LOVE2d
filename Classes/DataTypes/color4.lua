@@ -1,5 +1,5 @@
 
-Color4 = Object:extend()
+Color4 = Class:extend()
 
 
 function Color4:new(r,g,b,a)
