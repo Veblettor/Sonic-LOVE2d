@@ -5,8 +5,10 @@ function love.load()
 	require("Libraries.math")
 	Class = require("Classes.classic")
 	Vector2 = require("Classes.DataTypes.vector2")
-	Event = require("Classes.DataTypes.event")
 	
+	Event = require("Classes.DataTypes.event")
+	PriorityEvent = require("Classes.DataTypes.priorityEvent")
+
 
 	Stages = require("Registry.Stages")
 	TileClass = require("Classes.Terrain.tile")
@@ -103,11 +105,46 @@ function love.load()
 
 	GameMap = LoadLevel(Stages[1])
 	
-	cam = Camera(Vector2(3585,1408),Vector2(0,0))--Camera.new(0,0,3585,1665)
+	CurrentCamera = Camera(Vector2(3585,1408),Vector2(0,0))--Camera.new(0,0,3585,1665)
 	--sc = 1
 	--cam:setScale(sc+1)
 	
-	local function DrawWorld(left,top,width,height)
+	local mountains = love.graphics.newImage("Assets/Sprites/mountains.png")
+	local cities = love.graphics.newImage("Assets/Sprites/cities.png")
+	local clouds = love.graphics.newImage("Assets/Sprites/clouds.png")
+	
+	local function DrawMountains()
+		love.graphics.draw(mountains,0-(love.graphics.getWidth()/4),112+((love.graphics.getHeight()/4)-224*2),0,2,2)
+	end
+	
+	local function DrawCities()
+		love.graphics.draw(cities,0-(love.graphics.getWidth()/4),140+((love.graphics.getHeight()/4)-224*2),0,2,2)
+		
+	end
+	
+	local function DrawClouds()
+		--[[local start = 0
+		local minx,miny = love.graphics.inverseTransformPoint(0,0)
+		local maxx,maxy = love.graphics.inverseTransformPoint(love.graphics:getDimensions())
+		local dimsx,dimsy = clouds:getDimensions()
+		--love.graphics.draw(clouds,0-(love.graphics.getWidth()/4),112+((love.graphics.getHeight()/4)-224*2),0,2,2)
+		
+		--local offset = math.floor(minx - start) / dimsx
+		
+		
+		--start = start + (dimsx + offset)
+		repeat
+		love.graphics.draw(clouds,start,210+((love.graphics.getHeight()/4)-224*2),0,2,2)
+		
+        --love.graphics.rectangle('fill', start, 112+((love.graphics.getHeight()/4)-224*2), maxx, 50)
+		
+		start = start + dimsx*2
+		until start > maxx--]]
+		InfiniteDrawSingleAxis(clouds,Vector2(0,210+((love.graphics.getHeight()/4)-224*2)),"X",0,2,2)
+	end
+	
+	local function DrawWorld()
+		love.graphics.rectangle("line", CurrentCamera.Position.X-8,CurrentCamera.Position.Y-32,CurrentCamera.Radius.X,CurrentCamera.Radius.Y)
 		local CurrentAnim = player.Animations[player.CurrentAnimation]
 		if player.Facing == "Right" then
 		
@@ -120,14 +157,14 @@ function love.load()
 	
 		
 		
-		print( Vector2(love.graphics.getDimensions()))
+	
 		local Image = Stages[GameMap.LevelIndex].SpriteSheet
 		for i,v in pairs(GameMap.Chunks) do
 	
 		
 		local winDims = Vector2(love.graphics.getDimensions())
 			
-		local vec = cam:WorldToScreen(Vector2(v.XPos,v.YPos))
+		local vec = CurrentCamera:WorldToScreen(Vector2(v.XPos,v.YPos))
 		if vec.X <= winDims.X and vec.Y <= winDims.Y then
 		love.graphics.draw(Image,v.Quad,v.XPos,v.YPos,0,1,1,0,0)
 		end
@@ -145,12 +182,20 @@ function love.load()
 			love.graphics.points(player.Debug.sensorA.X,player.Debug.sensorA.Y,player.Debug.sensorB.X,player.Debug.sensorB.Y,player.Debug.sensorC.X,player.Debug.sensorC.Y,player.Debug.sensorD.X,player.Debug.sensorD.Y,player.Debug.sensorWall.X,player.Debug.sensorWall.Y);
 			
 		end
+		local MountainLayer = CurrentCamera:NewLayer(Vector2(0.1,0.05),-2,DrawMountains)
+		local CityLayer = CurrentCamera:NewLayer(Vector2(0.25,0.1),-1,DrawCities)
+		local CloudLayer = CurrentCamera:NewLayer(Vector2(1.25,0.35),1,DrawClouds)
+		local GameplayLayer = CurrentCamera:NewLayer(Vector2(1,1),0,DrawWorld)
+		
+	
 	
 	player = playerClass(Vector2(128,256), characterList[1])
-	cam.Target = player
-	cam.Position = player.Position
-	cam.OnDraw:Connect(DrawWorld)
+	CurrentCamera.Target = player
+	CurrentCamera.Position = player.Position
+	--GameplayLayer.OnDraw:Connect(DrawWorld)
+	--MountainLayer.OnDraw:Connect(DrawMountains)
 	player:UpdateStep(0)
+	
 end
 
 function love.keypressed(key,scancode,isrepeat)
@@ -160,7 +205,7 @@ function love.keypressed(key,scancode,isrepeat)
 		Slowdown = not Slowdown
 	elseif Paused and love.keyboard.isDown("f") then
 	local mydt = 1/60
-	cam:Update(dt)
+	CurrentCamera:Update(dt)
 	--cam:setWindow(0,0,love.graphics.getWidth(),love.graphics.getHeight())
 	if love.keyboard.isDown("=") then
 	sc = math.min(2,sc+0.05)
@@ -214,7 +259,7 @@ function love.update(dt)
 	
 
 	player:UpdateStep(dt)
-	cam:Update(dt)
+	CurrentCamera:Update(dt)
 	
 	
 	
@@ -237,12 +282,12 @@ function love.draw()
 
 	
 	
-	cam:Draw()
+	CurrentCamera:Draw()
 	
 	love.graphics.print("GroundAngle: "..player.GroundAngle,0,10)
 	love.graphics.print("GroundSpeed: "..player.GroundSpeed,0,30)
 	love.graphics.print("Pos: "..tostring(player.Position),0,50)
 	love.graphics.print("Spd: "..tostring(player.Speed),0,70)
 	love.graphics.print("State: "..player.State,0,90)
-	love.graphics.print("CamPos: "..tostring(cam.Position),0,110)
+	love.graphics.print("CamPos: "..tostring(CurrentCamera.Position),0,110)
 end

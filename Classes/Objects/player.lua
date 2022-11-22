@@ -471,7 +471,7 @@ end
 function Player:DebugControls(dt)
 
 if love.keyboard.isDown("z") then
-self.Position = cam:ScreenToWorld(Vector2(love.mouse.getPosition()))--Vector2(128,256)
+self.Position = CurrentCamera:ScreenToWorld(Vector2(love.mouse.getPosition()))--Vector2(128,256)
 end
 
 if love.keyboard.isDown("x") then

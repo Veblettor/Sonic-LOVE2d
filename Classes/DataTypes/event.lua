@@ -44,13 +44,13 @@ end
 function Event:Fire(...)
 
 for i,signal in pairs(self.__connections) do
-    local success,reason = pcall(signal.__signal,...)
+    --[[local success,reason = pcall(signal.__signal,...)
    
 
     if not success then
         print("Event Failure: "..reason)
-    end
-
+    end--]]
+	signal.__signal(...)
     if signal.Once then
         signal:Disconnect()
     end

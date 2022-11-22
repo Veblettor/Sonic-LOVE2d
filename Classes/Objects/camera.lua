@@ -3,7 +3,7 @@ local Camera = Object:extend()
 function Camera:new(HighestBounds,LowestBounds)
     Camera.super.new(self,Vector2(16,64),Vector2(16,32))
     self.Angle = 0
-    self.OnDraw = Event()
+    self.OnDraw = PriorityEvent()
     self.OnUpdate = Event()
     self.Target = Vector2(0,0)
     self.LastPosition = Vector2(0,0)
@@ -12,22 +12,47 @@ function Camera:new(HighestBounds,LowestBounds)
     self.MaxSpeed = 24
     self.Highest = HighestBounds or Vector2(3585,1665)
     self.Lowest = LowestBounds or Vector2(0,0)
+	self.Layers = {}
+	--[[self.OnDraw:Connect(0,function()
+		love.graphics.rectangle("line", self.Position.X-8,self.Position.Y-32,self.Radius.X,self.Radius.Y)
+	end)--]]
+end
+
+function Camera:NewLayer(scale,index,func)
+
+local tab = {}
+
+tab.Scale = scale or Vector2(1,1)
+tab.Index = index or 1
+tab.OnDraw = func
+
+table.insert(self.Layers,tab)
+table.sort(self.Layers,function(a,b)
+return a.Index < b.Index
+end)
+
+return tab
 end
 
 
 function Camera:Draw()
 
+
+
+for i,v in pairs(self.Layers) do
+local coords = self.Position+self.Offset
 love.graphics.push()
 love.graphics.scale(self.Scale.X, self.Scale.Y)  
-
 love.graphics.translate(love.graphics.getWidth()/2 / self.Scale.X,love.graphics.getHeight()/2 / self.Scale.Y)
 love.graphics.rotate(-math.rad(self.Angle))
-love.graphics.translate(-(self.Position.X+self.Offset.X), -(self.Position.Y+self.Offset.Y))
-
-self.OnDraw:Fire()
-love.graphics.rectangle("line", self.Position.X-8,self.Position.Y-32,self.Radius.X,self.Radius.Y)
-
+love.graphics.translate(-(coords.X * v.Scale.X), -(coords.Y * v.Scale.Y))
+v.OnDraw()
 love.graphics.pop()
+end
+
+--self.OnDraw:Fire()
+
+
 end
 
 function Camera:WorldToScreen(Position)
