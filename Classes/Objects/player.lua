@@ -690,14 +690,22 @@ end
 
 
 
-function Player:GetNearestFloor(sensor,maxdist,mode)
+function Player:GetNearestFloor(sensor,maxdist,mode,sensorType)
 local foundtile
 local olddist = maxdist + 1
 local olddist2 = olddist
 local hmindex
 local hmheight
 
-
+	local check = function(t)
+		if sensorType == "ceiling" then
+			return t.Flags.IgnoreCeiling
+		elseif sensorType == "wall" then
+			return t.Flags.IgnoreWall
+		else
+			return false
+		end
+	end
 
 
 
@@ -706,7 +714,7 @@ local hmheight
 			
 		for i,tile in pairs(GameMap.Tiles) do
 		
-			if  not  (self.Speed.Y < 0 and tile.Flags.IgnoreCeiling) then
+			if  not check(tile) then
 				
 				local heightmap = tile.HeightMap
 			
@@ -751,6 +759,10 @@ local hmheight
 		elseif mode == "rightwall" then
 		
 		for i,tile in pairs(GameMap.Tiles) do
+
+			
+			if  not check(tile) then
+
 			local heightmap 
 			if tile.HorizontalMap then
 				heightmap = tile.HorizontalMap
@@ -780,6 +792,8 @@ local hmheight
 					hmheight = heightmap[indexused]
 				end
 			end
+
+			end
 		end
 			
 		
@@ -788,7 +802,8 @@ local hmheight
 		
 			for i,tile in pairs(GameMap.Tiles) do
 		
-				if  not  (self.Speed.Y < 0 and tile.Flags.IgnoreCeiling) then
+				
+				if  not check(tile) then
 					
 					local heightmap = tile.HeightMap
 				
@@ -835,6 +850,7 @@ local hmheight
 			for i,tile in pairs(GameMap.Tiles) do
 		
 				
+			if  not check(tile) then
 					
 				local heightmap 
 				if tile.HorizontalMap then
@@ -874,7 +890,7 @@ local hmheight
 						end
 					end
 					
-				
+				end
 			
 			end
 			
@@ -1030,7 +1046,7 @@ end
 end
 
 	self.Debug.sensorWall = sensor
-	local detectedtile,dist,hmindex,hmheight = self:GetNearestFloor(sensor,11,face)
+	local detectedtile,dist,hmindex,hmheight = self:GetNearestFloor(sensor,11,face,"wall")
 	
 	if hmheight == 16 then
 		local newtile,newdist = self:RegressTile(sensor,face,detectedtile,hmindex)
@@ -1189,8 +1205,8 @@ function Player:CheckCanJump(dt)
 	end
 	
 
-	local ceiltile1,ceildist1,hmindex1,hmheight1,totaldist1 = self:GetNearestFloor(sensorC,6,flippedmode)
-	local ceiltile2,ceildist2,hmindex2,hmheight2,totaldist2 = self:GetNearestFloor(sensorD,6,flippedmode)
+	local ceiltile1,ceildist1,hmindex1,hmheight1,totaldist1 = self:GetNearestFloor(sensorC,6,flippedmode,"ceiling")
+	local ceiltile2,ceildist2,hmindex2,hmheight2,totaldist2 = self:GetNearestFloor(sensorD,6,flippedmode,"ceiling")
 
 	local winnertile,winnerdist,winnersensor,winnerh
 	
@@ -1298,8 +1314,8 @@ function Player:UpdateCeilingCollision(dt)
 	self.Debug.sensorC = sensorC
 	self.Debug.sensorD = sensorD
 
-	local ceiltile1,ceildist1,hmindex1,hmheight1,totaldist1 = self:GetNearestFloor(sensorC,16,flippedmode)
-	local ceiltile2,ceildist2,hmindex2,hmheight2,totaldist2 = self:GetNearestFloor(sensorD,16,flippedmode)
+	local ceiltile1,ceildist1,hmindex1,hmheight1,totaldist1 = self:GetNearestFloor(sensorC,16,flippedmode,"ceiling")
+	local ceiltile2,ceildist2,hmindex2,hmheight2,totaldist2 = self:GetNearestFloor(sensorD,16,flippedmode,"ceiling")
 
 	local winnertile,winnerdist,winnersensor,winnerh
 	

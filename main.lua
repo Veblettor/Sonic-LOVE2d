@@ -114,33 +114,15 @@ function love.load()
 	local clouds = love.graphics.newImage("Assets/Sprites/clouds.png")
 	
 	local function DrawMountains()
-		love.graphics.draw(mountains,0-(love.graphics.getWidth()/4),112+((love.graphics.getHeight()/4)-224*2),0,2,2)
+		InfiniteDrawSingleAxis(mountains,Vector2(2,2),Vector2(0-love.graphics.getWidth()/4,70+((love.graphics.getHeight()/4)-224*2)),"X",0,2,2)
 	end
 	
 	local function DrawCities()
-		love.graphics.draw(cities,0-(love.graphics.getWidth()/4),140+((love.graphics.getHeight()/4)-224*2),0,2,2)
-		
+		InfiniteDrawSingleAxis(cities,Vector2(2,2),Vector2(0-love.graphics.getWidth()/4,70+((love.graphics.getHeight()/4)-224*2)),"X",0,2,2)
 	end
 	
 	local function DrawClouds()
-		--[[local start = 0
-		local minx,miny = love.graphics.inverseTransformPoint(0,0)
-		local maxx,maxy = love.graphics.inverseTransformPoint(love.graphics:getDimensions())
-		local dimsx,dimsy = clouds:getDimensions()
-		--love.graphics.draw(clouds,0-(love.graphics.getWidth()/4),112+((love.graphics.getHeight()/4)-224*2),0,2,2)
-		
-		--local offset = math.floor(minx - start) / dimsx
-		
-		
-		--start = start + (dimsx + offset)
-		repeat
-		love.graphics.draw(clouds,start,210+((love.graphics.getHeight()/4)-224*2),0,2,2)
-		
-        --love.graphics.rectangle('fill', start, 112+((love.graphics.getHeight()/4)-224*2), maxx, 50)
-		
-		start = start + dimsx*2
-		until start > maxx--]]
-		InfiniteDrawSingleAxis(clouds,Vector2(0,210+((love.graphics.getHeight()/4)-224*2)),"X",0,2,2)
+		InfiniteDrawSingleAxis(clouds,Vector2(2,2),Vector2(0,250+((love.graphics.getHeight()/4)-224*2)),"X",0,2,2)
 	end
 	
 	local function DrawWorld()
@@ -183,7 +165,7 @@ function love.load()
 			
 		end
 		local MountainLayer = CurrentCamera:NewLayer(Vector2(0.1,0.05),-2,DrawMountains)
-		local CityLayer = CurrentCamera:NewLayer(Vector2(0.25,0.1),-1,DrawCities)
+		local CityLayer = CurrentCamera:NewLayer(Vector2(0.25,0.05),-1,DrawCities)
 		local CloudLayer = CurrentCamera:NewLayer(Vector2(1.25,0.35),1,DrawClouds)
 		local GameplayLayer = CurrentCamera:NewLayer(Vector2(1,1),0,DrawWorld)
 		
@@ -277,11 +259,6 @@ function love.draw()
 	--love.graphics.scale(2, 2)
 	love.graphics.setBackgroundColor(0,0.5,0.5,1)
 
-	
-	
-
-	
-	
 	CurrentCamera:Draw()
 	
 	love.graphics.print("GroundAngle: "..player.GroundAngle,0,10)
@@ -290,4 +267,5 @@ function love.draw()
 	love.graphics.print("Spd: "..tostring(player.Speed),0,70)
 	love.graphics.print("State: "..player.State,0,90)
 	love.graphics.print("CamPos: "..tostring(CurrentCamera.Position),0,110)
+	love.graphics.print("Scr: "..tostring(CurrentCamera:WorldToScreen(player.Position)),0,130)
 end

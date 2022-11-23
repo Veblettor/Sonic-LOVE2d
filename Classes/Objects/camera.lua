@@ -57,7 +57,7 @@ end
 
 function Camera:WorldToScreen(Position)
 local dist = Position - (self.Position+self.Offset)
-dist = Vector2(math.cosAng(self.Angle)*dist.X + math.sinAng(self.Angle)*dist.Y,-(math.sinAng(self.Angle)*dist.X) + math.cosAng(self.Angle)*dist.Y)
+dist = Vector2(math.cosAng(self.Angle)*dist.X - math.sinAng(self.Angle)*dist.Y,-(math.sinAng(self.Angle)*dist.X) + math.cosAng(self.Angle)*dist.Y)
 
 local scaled = self.Scale*dist
 return scaled + (Vector2(love.graphics.getDimensions())/2)
@@ -177,7 +177,7 @@ self.OnUpdate:Fire(dt)
 self.Position = self.Position + self.Speed
 
 local middle = (Vector2(love.graphics.getDimensions())/4)
-self.Position.X = math.clamp(self.Position.X,middle.X-self.Lowest.X-self.Offset.X,self.Highest.X-middle.X-self.Offset.X)
+--self.Position.X = math.clamp(self.Position.X,middle.X-self.Lowest.X-self.Offset.X,self.Highest.X-middle.X-self.Offset.X)
 self.Position.Y = math.clamp(self.Position.Y,middle.Y-self.Lowest.Y-self.Offset.Y,self.Highest.Y-middle.Y-self.Offset.Y)
 
 
