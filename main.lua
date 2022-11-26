@@ -103,9 +103,9 @@ function love.load()
 		return map
 	end
 
-	GameMap = LoadLevel(Stages[1])
+	GameMap = LoadLevel(Stages[2])
 	
-	CurrentCamera = Camera(Vector2(3585,1408),Vector2(0,0))--Camera.new(0,0,3585,1665)
+	CurrentCamera = Camera(Vector2(3585,1536),Vector2(0,0))--Camera.new(0,0,3585,1665)
 	--sc = 1
 	--cam:setScale(sc+1)
 	
@@ -126,15 +126,7 @@ function love.load()
 	end
 	
 	local function DrawWorld()
-		love.graphics.rectangle("line", CurrentCamera.Position.X-8,CurrentCamera.Position.Y-32,CurrentCamera.Radius.X,CurrentCamera.Radius.Y)
-		local CurrentAnim = player.Animations[player.CurrentAnimation]
-		if player.Facing == "Right" then
 		
-		love.graphics.draw(CurrentAnim.SpriteSheet,CurrentAnim.Frames[player.CurrentAnimationFrame],player.Position.X,player.Position.Y,-math.rad(player.DrawAngle),1,1,math.floor(CurrentAnim.FrameWidth/2),math.floor(CurrentAnim.FrameHeight/2))
-		
-		else
-		love.graphics.draw(CurrentAnim.SpriteSheet,CurrentAnim.Frames[player.CurrentAnimationFrame],player.Position.X,player.Position.Y,-math.rad(player.DrawAngle),-1,1,math.floor(CurrentAnim.FrameWidth/2),math.floor(CurrentAnim.FrameHeight/2))
-		end
 		
 	
 		
@@ -153,7 +145,15 @@ function love.load()
 	
 		end
 		
+		love.graphics.rectangle("line", CurrentCamera.Position.X-8,CurrentCamera.Position.Y-32,CurrentCamera.Radius.X,CurrentCamera.Radius.Y)
+		local CurrentAnim = player.Animations[player.CurrentAnimation]
+		if player.Facing == "Right" then
 		
+		love.graphics.draw(CurrentAnim.SpriteSheet,CurrentAnim.Frames[player.CurrentAnimationFrame],player.Position.X,player.Position.Y,-math.rad(player.DrawAngle),1,1,math.floor(CurrentAnim.FrameWidth/2),math.floor(CurrentAnim.FrameHeight/2))
+		
+		else
+		love.graphics.draw(CurrentAnim.SpriteSheet,CurrentAnim.Frames[player.CurrentAnimationFrame],player.Position.X,player.Position.Y,-math.rad(player.DrawAngle),-1,1,math.floor(CurrentAnim.FrameWidth/2),math.floor(CurrentAnim.FrameHeight/2))
+		end
 		
 		if player.Debug.DebugTile then
 			love.graphics.rectangle("line",player.Debug.DebugTile.XPos-16,player.Debug.DebugTile.YPos-16,16,16)
@@ -171,7 +171,7 @@ function love.load()
 		
 	
 	
-	player = playerClass(Vector2(128,256), characterList[1])
+	player = playerClass(Vector2(128,1453), characterList[1])
 	CurrentCamera.Target = player
 	CurrentCamera.Position = player.Position
 	--GameplayLayer.OnDraw:Connect(DrawWorld)

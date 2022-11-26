@@ -23,6 +23,25 @@ Stages =
 	
 
 		};--]]
+
+		{
+			StageID = "ghz";
+			Name = "Evergreen Hill Zone";
+			Act = 1;
+			
+			ChunkSize = 256;
+			SpriteSheet = love.graphics.newImage("Assets/Sprites/Stages/ghz.png");
+			ChunkSet = require("Registry.ChunkSets.ghz");
+	
+			GetChunkLayout = function()
+				
+				
+	
+				return require("Registry.StageLayouts.GHZMap")
+			end
+		
+	
+			};--]]
 		
 	
 		

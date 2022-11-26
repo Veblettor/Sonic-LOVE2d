@@ -185,7 +185,7 @@ end
 if love.keyboard.isDown("space") and canJump then
 	
 			if not self.HoldingJump and (self.State == "Grounded" or self.State == "Rolling")  then
-			self.Speed = self.Speed - Vector2(math.sin(math.rad(self.GroundAngle)),math.cos(math.rad(self.GroundAngle))) * self.Jmp
+			self.Speed = self.Speed - self.Jmp * Vector2(math.sinAng(self.GroundAngle),math.cosAng(self.GroundAngle))
 			--self.XSpeed = self.XSpeed - self.Jmp * math.sin(math.rad(self.GroundAngle))
 			--self.YSpeed = self.YSpeed - self.Jmp * math.cos(math.rad(self.GroundAngle))
 			self.HoldingJump = true
@@ -1537,7 +1537,7 @@ function Player:UpdateCollision(dt)
 		winnerh = hmheight1
 		elseif floortile1 and floortile2 and floordist1 == floordist2 then
 		
-		if self.Facing == "Left" then
+		if math.abs(floortile1.GroundAngle) < math.abs(floortile2.GroundAngle) then
 			winnertile = floortile1
 		winnerdist = floordist1
 		winnersensor = sensorA
@@ -1735,7 +1735,7 @@ function Player:UpdateStep(dt)
 
 			
 		if self.State == "Grounded" or self.State == "Rolling" then
-		self.Speed = Vector2(math.cos(math.rad(ang)),-math.sin(math.rad(ang))) * self.GroundSpeed
+		self.Speed = Vector2(math.cosAng(ang),-math.sinAng(ang)) * self.GroundSpeed
 		--self.Speed.X = self.GroundSpeed * math.cos(math.rad(ang))
 		--self.YSpeed = self.GroundSpeed * -math.sin(math.rad(ang))
 		
